@@ -250,6 +250,12 @@ const Profile = () => {
             orderId={payingOrder._id} 
             payosData={payosData}
             onPaymentSuccess={handlePaymentSuccess} 
+            onCancel={() => {
+              setPayingOrder(null); // Tắt màn hình QR
+              setPayosData(null);
+              fetchMyOrders(); // Cập nhật lại giao diện đơn hàng ngay lập tức
+              if (selectedOrder) setSelectedOrder(null);
+            }}
           />
         </div>
       </div>
@@ -350,7 +356,15 @@ const Profile = () => {
                           <p><span className="font-medium text-gray-500 w-24 inline-block">Người nhận:</span> <span className="font-bold">{selectedOrder.shippingAddress?.fullName}</span></p>
                           <p><span className="font-medium text-gray-500 w-24 inline-block">Điện thoại:</span> {selectedOrder.shippingAddress?.phone}</p>
                           <p><span className="font-medium text-gray-500 w-24 inline-block">Địa chỉ:</span> {selectedOrder.shippingAddress?.address}, {selectedOrder.shippingAddress?.city}</p>
-                          <p><span className="font-medium text-gray-500 w-24 inline-block">Thanh toán:</span> {selectedOrder.paymentMethod === 'QR' ? 'Chuyển khoản QR' : 'Tiền mặt (COD)'}</p>
+                          {/* Sửa dòng hiển thị phương thức thanh toán */}
+                          <p>
+                            <span className="font-medium text-gray-500 w-24 inline-block">Thanh toán:</span> 
+                            <span className="font-bold">
+                              {selectedOrder.isPaid && selectedOrder.paymentMethod === 'QR' 
+                                ? 'Chuyển khoản QR (thanh toán thành công)' 
+                                : (selectedOrder.paymentMethod === 'QR' ? 'Chuyển khoản QR (chưa thanh toán)' : 'Tiền mặt (COD)')}
+                            </span>
+                          </p>
                         </div>
                       </div>
 
@@ -372,20 +386,59 @@ const Profile = () => {
                         </div>
                       </div>
 
-                      <div className="border-t border-gray-200 dark:border-gray-700 pt-4 mb-8">
-                        <div className="flex justify-between items-center mb-2 text-sm text-gray-600 dark:text-gray-400">
-                          <span>Tạm tính</span>
-                          <span className="font-bold">{formatPrice(selectedOrder.itemsPrice || selectedOrder.totalAmount - (selectedOrder.shippingPrice || 0))}</span>
-                        </div>
-                        <div className="flex justify-between items-center mb-4 text-sm text-gray-600 dark:text-gray-400">
-                          <span>Phí vận chuyển</span>
-                          <span className="font-bold">{formatPrice(selectedOrder.shippingPrice || 0)}</span>
-                        </div>
-                        <div className="flex justify-between items-center text-lg">
-                          <span className="font-black text-gray-900 dark:text-white">Tổng cộng</span>
-                          <span className="font-black text-2xl text-blue-600 dark:text-blue-400">{formatPrice(selectedOrder.totalAmount)}</span>
-                        </div>
-                      </div>
+<div className="border-t border-gray-200 dark:border-gray-700 pt-4 mb-8">
+  {/* Tạm tính */}
+  <div className="flex justify-between items-center mb-2 text-sm text-gray-600 dark:text-gray-400">
+    <span>Tạm tính</span>
+    <span className="font-bold">
+      {formatPrice(selectedOrder.itemsPrice || selectedOrder.totalAmount - (selectedOrder.shippingPrice || 0))}
+    </span>
+  </div>
+  
+  {/* Phí vận chuyển */}
+  <div className="flex justify-between items-center mb-2 text-sm text-gray-600 dark:text-gray-400">
+    <span>Phí vận chuyển</span>
+    <span className="font-bold">{formatPrice(selectedOrder.shippingPrice || 0)}</span>
+  </div>
+
+  {/* Phần Giảm giá: Chỉ hiển thị nếu có áp dụng mã giảm giá */}
+  {((selectedOrder.itemsPrice || 0) + (selectedOrder.shippingPrice || 0) - selectedOrder.totalAmount > 0) && (
+    <div className="flex justify-between items-center mb-2 text-sm text-green-600 dark:text-green-400 font-medium">
+      <span>Giảm giá</span>
+      <span>- {formatPrice((selectedOrder.itemsPrice || 0) + (selectedOrder.shippingPrice || 0) - selectedOrder.totalAmount)}</span>
+    </div>
+  )}
+
+  <div className="mb-4"></div> {/* Tạo khoảng cách */}
+
+  {/* Tổng giá trị đơn hàng: Chỉ gạch ngang và làm mờ nếu ĐÃ THANH TOÁN */}
+  <div className={`flex justify-between items-center text-base mb-2 ${selectedOrder.isPaid ? 'text-gray-500' : 'text-gray-900 dark:text-white font-bold'}`}>
+    <span>Tổng giá trị đơn hàng</span>
+    <span className={selectedOrder.isPaid ? "line-through" : ""}>
+      {formatPrice(selectedOrder.totalAmount)}
+    </span>
+  </div>
+
+  {/* HIỂN THỊ SỐ TIỀN CẦN THANH TOÁN */}
+  <div className="flex justify-between items-center text-xl mt-2 pt-4 border-t border-dashed border-gray-200 dark:border-gray-700">
+    <span className="font-black text-gray-900 dark:text-white">
+      {selectedOrder.isPaid ? 'Số tiền cần thanh toán' : 'Tổng cộng'}
+    </span>
+    
+    {selectedOrder.isPaid ? (
+      <div className="text-right">
+        <span className="font-black text-3xl text-green-600 dark:text-green-400">0 đ</span>
+        <p className="text-[10px] text-green-600 font-black uppercase mt-1 tracking-widest">
+          <i className="ri-check-line"></i> Hoàn tất
+        </p>
+      </div>
+    ) : (
+      <span className="font-black text-3xl text-blue-600 dark:text-blue-400">
+        {formatPrice(selectedOrder.totalAmount)}
+      </span>
+    )}
+  </div>
+</div>
 
                       <div className="flex flex-col sm:flex-row justify-end gap-3 print:hidden">
                         
@@ -438,9 +491,16 @@ const Profile = () => {
                                   <p className="text-xs text-gray-500 mt-1">{new Date(order.createdAt).toLocaleDateString('vi-VN')}</p>
                                 </div>
                                 <div className="text-right">
-                                  <div className="mb-2">{getStatusBadge(order)}</div>
-                                  <p className="text-lg font-black text-blue-600 dark:text-blue-400">{formatPrice(order.totalAmount)}</p>
-                                </div>
+                                <div className="mb-2">{getStatusBadge(order)}</div>
+                                {order.isPaid ? (
+                                  <div>
+                                    <p className="text-xl font-black text-green-600 dark:text-green-400">0 đ</p>
+                                    <p className="text-[10px] text-gray-400 line-through">{formatPrice(order.totalAmount)}</p>
+                                  </div>
+                                ) : (
+                                  <p className="text-xl font-black text-blue-600 dark:text-blue-400">{formatPrice(order.totalAmount)}</p>
+                                )}
+                              </div>
                               </div>
 
                               <div className="flex items-center gap-4 mb-6">

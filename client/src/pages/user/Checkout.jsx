@@ -194,9 +194,13 @@ const Checkout = () => {
           <PaymentQR 
             orderId={createdOrder._id} 
             payosData={payosData}
-            onPaymentSuccess={() => {
-              navigate('/profile'); // Chuyển về profile khi web hook bắt đc tiền
+           onPaymentSuccess={() => {
+              navigate('/profile'); // Thanh toán xong -> Về profile (Đơn chuyển thành Chờ xác nhận)
             }} 
+            // THÊM SỰ KIỆN NÀY:
+            onCancel={() => {
+              navigate('/profile'); // Hủy xong -> Về profile (Đơn chuyển thành Đã hủy)
+            }}
           />
         </div>
       </div>

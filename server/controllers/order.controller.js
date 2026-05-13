@@ -129,6 +129,15 @@ export const updateOrderStatus = async (req, res, next) => {
           });
         }
       }
+      // 2. THÊM ĐOẠN NÀY: Hủy luôn link PayOS nếu là đơn QR
+        if (order.paymentMethod === 'QR' && order.payosOrderCode) {
+          try {
+            await payos.paymentRequests.cancel(order.payosOrderCode, { cancellationReason: "Admin huy don" });
+          } catch (err) {
+            console.log("PayOS Cancel Error:", err.message);
+          }
+        }
+      
 
       order.status = req.body.status;
       

@@ -3,7 +3,7 @@ import { formatPrice } from '../utils/format';
 import toast from 'react-hot-toast';
 import { orderService } from '../services/order.service';
 
-const PaymentQR = ({ orderId, payosData, onPaymentSuccess }) => {
+const PaymentQR = ({ orderId, payosData, onPaymentSuccess, onCancel }) => {
   const [timeLeft, setTimeLeft] = useState(15 * 60); // 15 phút đếm ngược
 
   // Tạo link ảnh QR trực tiếp từ VietQR dựa trên data PayOS trả về
@@ -41,6 +41,22 @@ const PaymentQR = ({ orderId, payosData, onPaymentSuccess }) => {
     return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
   };
 
+  // 2. Thêm hàm xử lý Hủy đơn ngay tại đây
+  const handleCancelOrder = async () => {
+    if (window.confirm('Bạn có chắc chắn muốn dừng thanh toán và hủy đơn hàng này?')) {
+      try {
+        toast.loading('Đang hủy đơn...', { id: 'cancel' });
+        await orderService.cancelOrder(orderId);
+        toast.dismiss('cancel');
+        toast.success('Đã hủy đơn hàng thành công');
+        
+        if (onCancel) onCancel(); // Báo cho Component cha biết để đóng màn hình QR lại
+      } catch (error) {
+        toast.dismiss('cancel');
+        toast.error('Lỗi khi hủy đơn');
+      }
+    }
+  };
   return (
     <div className="bg-white dark:bg-gray-900 rounded-[2rem] p-6 md:p-10 shadow-2xl shadow-blue-900/10 border border-gray-100 dark:border-gray-800 max-w-3xl mx-auto animate-fade-in">
       <div className="text-center mb-8">
@@ -98,6 +114,12 @@ const PaymentQR = ({ orderId, payosData, onPaymentSuccess }) => {
           <p className="text-center text-xs text-red-500 mt-3 font-medium">
             * Bắt buộc chuyển đúng nội dung chữ đỏ để hệ thống xác nhận tự động.
           </p>
+          <button 
+            onClick={handleCancelOrder}
+            className="w-full mt-4 py-3.5 bg-red-50 hover:bg-red-100 dark:bg-red-900/20 dark:hover:bg-red-900/40 text-red-600 font-bold rounded-xl transition-colors flex items-center justify-center gap-2"
+          >
+            <i className="ri-close-circle-line text-lg"></i> Hủy thanh toán & Hủy đơn
+          </button>
         </div>
       </div>
     </div>
