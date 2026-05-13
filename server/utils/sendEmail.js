@@ -1,12 +1,11 @@
 import { Resend } from 'resend';
 
-// Khởi tạo Resend với API Key lấy từ biến môi trường
-const resend = new Resend(process.env.RESEND_API_KEY);
-
 export const sendEmail = async ({ to, subject, html }) => {
+  // BƯỚC QUAN TRỌNG: Đưa dòng khởi tạo này vào BÊN TRONG hàm
+  const resend = new Resend(process.env.RESEND_API_KEY);
+
   try {
     const data = await resend.emails.send({
-      // BẮT BUỘC ĐỂ NGUYÊN EMAIL NÀY NẾU CHƯA XÁC MINH TÊN MIỀN
       from: 'onboarding@resend.dev', 
       to: to,
       subject: subject,
