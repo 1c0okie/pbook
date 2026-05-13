@@ -1,0 +1,204 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+@import 'remixicon/fonts/remixicon.css';
+/* Custom scrollbar hoặc các setting CSS global có thể đặt ở đây */
+
+/* =========================================
+   HỆ THỐNG GIAO DIỆN 4 MÙA (THEME ENGINE)
+   ========================================= */
+
+/* --- MÙA XUÂN (Hồng Đào / Rose) --- */
+body.theme-spring .bg-blue-600 { background-color: #e11d48 !important; }
+body.theme-spring .hover\:bg-blue-700:hover { background-color: #be123c !important; }
+body.theme-spring .text-blue-600 { color: #e11d48 !important; }
+body.theme-spring .dark\:text-blue-400:is(.dark *) { color: #fda4af !important; }
+body.theme-spring .border-blue-500, body.theme-spring .focus\:border-blue-500:focus { border-color: #f43f5e !important; }
+body.theme-spring .border-blue-600 { border-color: #e11d48 !important; }
+body.theme-spring .bg-blue-50 { background-color: #fff1f2 !important; }
+body.theme-spring .dark\:bg-blue-900\/20:is(.dark *) { background-color: rgba(225, 29, 72, 0.2) !important; }
+body.theme-spring .dark\:bg-blue-900\/30:is(.dark *) { background-color: rgba(225, 29, 72, 0.3) !important; }
+body.theme-spring .bg-blue-100 { background-color: #ffe4e6 !important; }
+body.theme-spring .shadow-blue-600\/20 { box-shadow: 0 10px 15px -3px rgba(225, 29, 72, 0.2) !important; }
+body.theme-spring .shadow-blue-600\/30 { box-shadow: 0 10px 15px -3px rgba(225, 29, 72, 0.3) !important; }
+
+/* --- MÙA HÈ (Xanh Lục Nhiệt Đới / Emerald) --- */
+body.theme-summer .bg-blue-600 { background-color: #059669 !important; }
+body.theme-summer .hover\:bg-blue-700:hover { background-color: #047857 !important; }
+body.theme-summer .text-blue-600 { color: #059669 !important; }
+body.theme-summer .dark\:text-blue-400:is(.dark *) { color: #6ee7b7 !important; }
+body.theme-summer .border-blue-500, body.theme-summer .focus\:border-blue-500:focus { border-color: #10b981 !important; }
+body.theme-summer .border-blue-600 { border-color: #059669 !important; }
+body.theme-summer .bg-blue-50 { background-color: #ecfdf5 !important; }
+body.theme-summer .dark\:bg-blue-900\/20:is(.dark *) { background-color: rgba(5, 150, 105, 0.2) !important; }
+body.theme-summer .dark\:bg-blue-900\/30:is(.dark *) { background-color: rgba(5, 150, 105, 0.3) !important; }
+body.theme-summer .bg-blue-100 { background-color: #d1fae5 !important; }
+body.theme-summer .shadow-blue-600\/20 { box-shadow: 0 10px 15px -3px rgba(5, 150, 105, 0.2) !important; }
+body.theme-summer .shadow-blue-600\/30 { box-shadow: 0 10px 15px -3px rgba(5, 150, 105, 0.3) !important; }
+
+/* --- MÙA THU (Cam Lá Phong / Orange) --- */
+body.theme-autumn .bg-blue-600 { background-color: #ea580c !important; }
+body.theme-autumn .hover\:bg-blue-700:hover { background-color: #c2410c !important; }
+body.theme-autumn .text-blue-600 { color: #ea580c !important; }
+body.theme-autumn .dark\:text-blue-400:is(.dark *) { color: #fdba74 !important; }
+body.theme-autumn .border-blue-500, body.theme-autumn .focus\:border-blue-500:focus { border-color: #f97316 !important; }
+body.theme-autumn .border-blue-600 { border-color: #ea580c !important; }
+body.theme-autumn .bg-blue-50 { background-color: #fff7ed !important; }
+body.theme-autumn .dark\:bg-blue-900\/20:is(.dark *) { background-color: rgba(234, 88, 12, 0.2) !important; }
+body.theme-autumn .dark\:bg-blue-900\/30:is(.dark *) { background-color: rgba(234, 88, 12, 0.3) !important; }
+body.theme-autumn .bg-blue-100 { background-color: #ffedd5 !important; }
+body.theme-autumn .shadow-blue-600\/20 { box-shadow: 0 10px 15px -3px rgba(234, 88, 12, 0.2) !important; }
+body.theme-autumn .shadow-blue-600\/30 { box-shadow: 0 10px 15px -3px rgba(234, 88, 12, 0.3) !important; }
+
+/* --- MÙA XUÂN (Bổ sung hover text) --- */
+body.theme-spring .hover\:text-blue-600:hover { color: #e11d48 !important; }
+body.theme-spring .group:hover .group-hover\:text-blue-600 { color: #e11d48 !important; }
+body.theme-spring .group:hover .group-hover\:ring-blue-400 { --tw-ring-color: #fb7185 !important; }
+body.theme-spring .group:hover .group-hover\:ring-blue-100 { --tw-ring-color: #ffe4e6 !important; }
+
+/* --- MÙA HÈ (Bổ sung hover text) --- */
+body.theme-summer .hover\:text-blue-600:hover { color: #059669 !important; }
+body.theme-summer .group:hover .group-hover\:text-blue-600 { color: #059669 !important; }
+body.theme-summer .group:hover .group-hover\:ring-blue-400 { --tw-ring-color: #34d399 !important; }
+body.theme-summer .group:hover .group-hover\:ring-blue-100 { --tw-ring-color: #d1fae5 !important; }
+
+/* --- MÙA THU (Bổ sung hover text) --- */
+body.theme-autumn .hover\:text-blue-600:hover { color: #ea580c !important; }
+body.theme-autumn .group:hover .group-hover\:text-blue-600 { color: #ea580c !important; }
+body.theme-autumn .group:hover .group-hover\:ring-blue-400 { --tw-ring-color: #fb923c !important; }
+body.theme-autumn .group:hover .group-hover\:ring-blue-100 { --tw-ring-color: #ffedd5 !important; }
+
+/* --- MÙA ĐÔNG (Nếu bạn có dùng màu mặc định Blue) --- */
+/* Mùa đông thường dùng Blue mặc định của Tailwind nên không cần ghi đè trừ khi bạn muốn đổi mã màu xanh khác */
+
+/* --- MÙA XUÂN (Spring) --- */
+/* Thêm dòng này để sửa lỗi hover nút */
+body.theme-spring .hover\:bg-blue-600:hover { background-color: #e11d48 !important; }
+body.theme-spring .hover\:border-blue-600:hover { border-color: #e11d48 !important; }
+body.theme-spring .hover\:border-blue-600:hover { border-color: #e11d48 !important; }
+
+/* --- MÙA HÈ (Summer) --- */
+body.theme-summer .hover\:bg-blue-600:hover { background-color: #047857 !important; }
+body.theme-summer .hover\:border-blue-600:hover { border-color: #047857 !important; }
+
+
+/* --- MÙA THU (Autumn) --- */
+body.theme-autumn .hover\:bg-blue-600:hover { background-color: #c2410c !important; }
+body.theme-autumn .hover\:border-blue-600:hover { border-color: #c2410c !important; }
+/* =========================================
+   BỔ SUNG GHI ĐÈ VIỀN KHI HOVER (BORDER HOVER)
+   ========================================= */
+
+/* --- MÙA XUÂN --- */
+/* Viền của nút khi hover trực tiếp vào nút */
+
+/* Viền của cả thẻ Card khi hover vào Card */
+body.theme-spring .hover\:border-blue-500:hover { border-color: #f43f5e !important; }
+
+/* --- MÙA HÈ --- */
+
+body.theme-summer .hover\:border-blue-500:hover { border-color: #10b981 !important; }
+
+/* --- MÙA THU --- */
+
+body.theme-autumn .hover\:border-blue-500:hover { border-color: #f97316 !important; }
+
+/* Áp dụng cho toàn bộ trang web */
+html.dark {
+  color-scheme: dark;
+}
+
+/* Tùy chỉnh thanh cuộn cho toàn bộ trình duyệt */
+::-webkit-scrollbar {
+  width: 8px; /* Độ rộng của thanh cuộn dọc */
+  height: 8px; /* Độ cao của thanh cuộn ngang */
+}
+
+/* Phần nền của thanh cuộn */
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* Phần tay kéo (Thumb) - Mặc định ở Light Mode */
+::-webkit-scrollbar-thumb {
+  background-color: #d1d5db; /* gray-300 */
+  border-radius: 20px;
+  border: 2px solid transparent;
+  background-clip: content-box;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: #9ca3af; /* gray-400 */
+}
+
+/* --- KHI Ở CHẾ ĐỘ DARK MODE --- */
+.dark::-webkit-scrollbar-thumb,
+.dark ::-webkit-scrollbar-thumb {
+  background-color: #374151; /* gray-700 */
+}
+
+.dark::-webkit-scrollbar-thumb:hover,
+.dark ::-webkit-scrollbar-thumb:hover {
+  background-color: #4b5563; /* gray-600 */
+}
+
+/* --- ĐỒNG BỘ THEO CÁC MÙA (THEME ENGINE) --- */
+/* Khi hover vào thanh cuộn sẽ hiện màu của mùa đó */
+
+/* Mùa Xuân */
+body.theme-spring ::-webkit-scrollbar-thumb:hover {
+  background-color: #e11d48 !important;
+}
+
+/* Mùa Hè */
+body.theme-summer ::-webkit-scrollbar-thumb:hover {
+  background-color: #059669 !important;
+}
+
+/* Mùa Thu */
+body.theme-autumn ::-webkit-scrollbar-thumb:hover {
+  background-color: #ea580c !important;
+}
+
+/* Áp dụng cho khung có thanh cuộn cụ thể */
+.overflow-y-auto {
+  scrollbar-width: thin; /* Cho Firefox */
+  scrollbar-color: #d1d5db transparent; /* Cho Firefox */
+}
+
+.dark .overflow-y-auto {
+  scrollbar-color: #374151 transparent; /* Cho Firefox Dark Mode */
+}
+
+@keyframes float {
+  0% { transform: translateY(0px) rotate(0deg); }
+  50% { transform: translateY(-15px) rotate(1deg); }
+  100% { transform: translateY(0px) rotate(0deg); }
+}
+
+@keyframes float-delayed {
+  0% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+  100% { transform: translateY(0px); }
+}
+
+.animate-float {
+  animation: float 5s ease-in-out infinite;
+}
+
+.animate-float-delayed {
+  animation: float-delayed 2s ease-in-out infinite;
+  animation-delay: 1s;
+}
+/* =========================================
+   ĐỔI MÀU ICON TRONG FORM KHI FOCUS
+   ========================================= */
+
+/* Mùa Xuân */
+body.theme-spring .group:focus-within .group-focus-within\:text-blue-600 { color: #e11d48 !important; }
+
+/* Mùa Hè */
+body.theme-summer .group:focus-within .group-focus-within\:text-blue-600 { color: #059669 !important; }
+
+/* Mùa Thu */
+body.theme-autumn .group:focus-within .group-focus-within\:text-blue-600 { color: #ea580c !important; }
