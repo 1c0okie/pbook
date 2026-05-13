@@ -24,7 +24,10 @@ const app = express();
 // Middlewares
 app.use(cors());
 app.use(express.json()); // Phân tích JSON body
-
+// Tạo một Route mặc định để UptimeRobot kiểm tra (Health Check)
+app.get('/', (req, res) => {
+  res.status(200).send('Backend PBook đang chạy ngon lành!');
+});
 // Routes
 app.use('/api/v1/auth', authRoutes);
 app.use('/api/v1/categories', categoryRoutes); // Route danh mục
