@@ -1,20 +1,22 @@
-import nodemailer from 'nodemailer';
+import { Resend } from 'resend';
+
+// Khởi tạo Resend với API Key lấy từ biến môi trường
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 export const sendEmail = async ({ to, subject, html }) => {
-  const transporter = nodemailer.createTransport({
-    service: 'gmail',
-    auth: {
-      user: process.env.EMAIL_USER,
-      pass: process.env.EMAIL_PASS,
-    },
-  });
+  try {
+    const data = await resend.emails.send({
+      // BẮT BUỘC ĐỂ NGUYÊN EMAIL NÀY NẾU CHƯA XÁC MINH TÊN MIỀN
+      from: 'onboarding@resend.dev', 
+      to: to,
+      subject: subject,
+      html: html,
+    });
 
-  const mailOptions = {
-    from: `"Cửa hàng Sách" <${process.env.EMAIL_USER}>`,
-    to,
-    subject,
-    html,
-  };
-
-  await transporter.sendMail(mailOptions);
+    console.log("Đã gửi email qua Resend thành công:", data);
+    return data;
+  } catch (error) {
+    console.error("LỖI RESEND:", error);
+    throw new Error('Không thể gửi email lúc này');
+  }
 };
