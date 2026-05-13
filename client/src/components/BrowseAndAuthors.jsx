@@ -68,23 +68,38 @@ const BrowseAndAuthors = ({ browseBooks = [], authorsList = [] }) => {
             </h2>
             
             {/* THÊM THANH CUỘN ĐỒNG BỘ CHIỀU CAO VỚI BROWSE */}
-            <div className="flex flex-col gap-6 max-h-[600px] overflow-y-auto pl-6 pt-1 pb-1">
+            <div className="flex flex-col gap-6 max-h-[600px] overflow-y-auto pl-6 pt-1 pb-1 custom-scrollbar">
               {authorsList.length > 0 ? (
-                authorsList.map((author, index) => (
-                  <Link to={`/author/${author._id}`} key={author._id || index} className="flex items-center gap-4 cursor-pointer group">
-                    {/* AVATAR TO HƠN (w-14 h-14) */}
-                    <img 
-                      src={author.avatarUrl || author.avatar || "https://i.pravatar.cc/150"} 
-                      alt={author.name} 
-                      className="w-14 h-14 rounded-full object-cover shadow-sm group-hover:ring-2 group-hover:ring-blue-400 transition-all" 
-                    />
-                    <span className="text-lg font-semibold text-gray-700 dark:text-gray-300 group-hover:text-blue-600 transition-colors line-clamp-1">
-                      {author.name}
-                    </span>
-                  </Link>
-                ))
+                [...authorsList]
+                  // 1. Sắp xếp giảm dần theo số lượng sách
+                  // Lưu ý: Đổi 'author.books?.length' thành 'author.bookCount' nếu backend của bạn trả về một biến đếm riêng
+                  .sort((a, b) => (b.books?.length || 0) - (a.books?.length || 0)) 
+                  // 2. Chỉ lấy ra 5 tác giả đầu tiên
+                  .slice(0, 5) 
+                  // 3. Render giao diện
+                  .map((author, index) => (
+                    <Link to={`/author/${author._id}`} key={author._id || index} className="flex items-center gap-4 cursor-pointer group">
+                      {/* AVATAR TO HƠN (w-14 h-14) */}
+                      <img 
+                        src={author.avatarUrl || author.avatar || "https://i.pravatar.cc/150"} 
+                        alt={author.name} 
+                        className="w-14 h-14 rounded-full object-cover shadow-sm group-hover:ring-2 group-hover:ring-blue-400 transition-all shrink-0" 
+                      />
+                      <div className="flex flex-col">
+                        <span className="text-lg font-semibold text-gray-700 dark:text-gray-300 group-hover:text-blue-600 transition-colors line-clamp-1">
+                          {author.name}
+                        </span>
+                        {/* Hiển thị thêm số lượng sách để user dễ hình dung */}
+                        <span className="text-xs text-gray-500 mt-0.5">
+                          Đã xuất bản {author.books?.length || 0} cuốn
+                        </span>
+                      </div>
+                    </Link>
+                  ))
               ) : (
-                <div className="text-gray-500 dark:text-gray-400">Đang tải tác giả...</div>
+                <div className="text-gray-500 dark:text-gray-400 flex items-center gap-2">
+                  <i className="ri-loader-4-line animate-spin"></i> Đang tải tác giả...
+                </div>
               )}
             </div>
           </div>
