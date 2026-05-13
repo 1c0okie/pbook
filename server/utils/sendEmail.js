@@ -6,7 +6,7 @@ export const sendEmail = async ({ to, subject, html }) => {
 
   try {
     const data = await resend.emails.send({
-      from: 'Cửa hàng Sách <lostfrom@pbook.ink>', 
+      from: 'Pbook <lostfrom@pbook.ink>', 
       to: to,
       subject: subject,
       html: html,
