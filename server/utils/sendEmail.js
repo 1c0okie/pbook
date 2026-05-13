@@ -3,15 +3,17 @@ import nodemailer from 'nodemailer';
 export const sendEmail = async ({ to, subject, html }) => {
   const transporter = nodemailer.createTransport({
     host: 'smtp.gmail.com',
-    port: 465,
-    secure: true, // Sử dụng SSL cho cổng 465
+    port: 587, // Đã đổi sang cổng 587
+    secure: false, // Cổng 587 bắt buộc secure phải là false
     auth: {
       user: process.env.EMAIL_USER,
       pass: process.env.EMAIL_PASS,
     },
-    // GIẢI PHÁP QUAN TRỌNG: Ép sử dụng IPv4 để tránh lỗi ENETUNREACH trên Render
-    family: 4, 
-    connectionTimeout: 10000, // Tăng thời gian chờ kết nối lên 10s
+    family: 4, // Vẫn giữ nguyên để chống lỗi ENETUNREACH (IPv6)
+    connectionTimeout: 10000, 
+    tls: {
+      rejectUnauthorized: false // Bỏ qua lỗi xác thực chứng chỉ môi trường cloud
+    }
   });
 
   const mailOptions = {
