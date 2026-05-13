@@ -17,7 +17,7 @@ import contactRoutes from './routes/contact.routes.js';
 import auditRoutes from './routes/audit.routes.js'; // Route cho Audit Log
 dotenv.config();
 connectDB();
-const dns = require('dns');
+import dns from 'dns';
 dns.setDefaultResultOrder('ipv4first');
 const app = express();
 
