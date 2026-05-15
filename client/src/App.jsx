@@ -38,6 +38,11 @@ import AuditLogManager from './pages/admin/AuditLogManager';
 import ForgotPassword from './pages/ForgotPassword';
 import ResetPassword from './pages/ResetPassword';
 import ScrollToTop from './components/ScrollToTop';
+import { useScrollReveal } from './hooks/useScrollReveal';
+const GlobalAnimations = () => {
+  useScrollReveal();
+  return null; // Component này chạy ngầm, không render gì ra màn hình
+};
 function App() {
   const initTheme = useThemeStore((state) => state.initTheme);
   const { settings, fetchSettings } = useSettingStore();
@@ -60,6 +65,7 @@ function App() {
   return (
     <Router>
       <ScrollToTop />
+      <GlobalAnimations />
       {/* Cấu hình Toaster toàn cục */}
       <Toaster
         position="bottom-right" // Chuyển xuống góc dưới bên phải để tránh che Form

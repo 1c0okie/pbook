@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import toast from 'react-hot-toast';
+import { useSearchParams } from 'react-router-dom'; // 1. IMPORT HOOK LẤY PARAMS TỪ URL
 import { authorService } from '../../services/author.service';
 import api from '../../utils/api'; // Import axios instance để gọi API upload
 
@@ -16,6 +17,14 @@ const AuthorManager = () => {
   
   // Theo dõi giá trị avatarUrl để hiển thị preview trong form
   const avatarUrlPreview = watch('avatarUrl');
+
+  // 2. LẤY TỪ KHÓA TỪ URL VÀ TẠO DANH SÁCH ĐÃ LỌC
+  const [searchParams] = useSearchParams();
+  const searchTerm = searchParams.get('q') || '';
+
+  const filteredAuthors = authors.filter(author => 
+    author.name.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   const fetchAuthors = async () => {
     try {
@@ -100,7 +109,7 @@ const AuthorManager = () => {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
+      {/* Header (Không có số lượng kết quả theo yêu cầu) */}
       <div className="flex justify-between items-center bg-white dark:bg-gray-900 p-6 rounded-3xl shadow-sm border border-gray-100 dark:border-gray-800 transition-colors">
         <div>
           <h2 className="text-2xl font-bold text-gray-800 dark:text-white">Quản lý Tác Giả</h2>
@@ -128,10 +137,12 @@ const AuthorManager = () => {
             <tbody className="divide-y divide-gray-100 dark:divide-gray-800">
               {isLoading ? (
                 <tr><td colSpan="3" className="text-center p-8 text-gray-500">Đang tải dữ liệu...</td></tr>
-              ) : authors.length === 0 ? (
-                <tr><td colSpan="3" className="text-center p-8 text-gray-500">Chưa có tác giả nào.</td></tr>
+              ) : filteredAuthors.length === 0 ? (
+                // 3. THAY ĐỔI ĐIỀU KIỆN MẢNG RỖNG
+                <tr><td colSpan="3" className="text-center p-8 text-gray-500">Không tìm thấy tác giả nào.</td></tr>
               ) : (
-                authors.map((author) => (
+                // 4. MAP QUA MẢNG ĐÃ ĐƯỢC LỌC (filteredAuthors)
+                filteredAuthors.map((author) => (
                   <tr key={author._id} className="hover:bg-gray-50 dark:hover:bg-gray-800/30 transition-colors group">
                     <td className="p-5 flex items-center gap-4">
                       <div className="h-12 w-12 rounded-full overflow-hidden bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 flex-shrink-0">

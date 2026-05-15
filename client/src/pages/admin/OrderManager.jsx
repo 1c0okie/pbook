@@ -1,11 +1,31 @@
 import React, { useState, useEffect } from 'react';
 import toast from 'react-hot-toast';
+import { useSearchParams } from 'react-router-dom';
 import { orderService } from '../../services/order.service';
 import { formatPrice } from '../../utils/format';
 
 const OrderManager = () => {
   const [orders, setOrders] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  
+  // STATE QUẢN LÝ TAB
+  const [activeTab, setActiveTab] = useState('shipping');
+
+  const [searchParams] = useSearchParams();
+  const searchTerm = searchParams.get('q') || '';
+
+  // Lọc theo TỪ KHÓA và theo TAB
+  const displayedOrders = orders.filter(order => {
+    const matchesSearch = 
+      order._id.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      order.shippingAddress?.fullName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      order.shippingAddress?.phone?.includes(searchTerm) ||
+      (order.payosOrderCode && order.payosOrderCode.toString().includes(searchTerm));
+    
+    const matchesTab = activeTab === 'shipping' ? true : order.paymentMethod === 'QR';
+    
+    return matchesSearch && matchesTab;
+  });
 
   const fetchOrders = async () => {
     try {
@@ -35,6 +55,19 @@ const OrderManager = () => {
     }
   };
 
+  // Hàm xác nhận thanh toán thủ công cho đơn QR
+  const handleManualPaymentConfirm = async (id) => {
+    if (window.confirm('Xác nhận khách hàng đã chuyển khoản thành công?')) {
+      try {
+        await orderService.updateStatus(id, 'Chờ xác nhận');
+        toast.success('Xác nhận thu tiền thành công!');
+        fetchOrders();
+      } catch (error) {
+        toast.error('Lỗi khi xác nhận thanh toán');
+      }
+    }
+  };
+
   const getStatusColor = (status) => {
     switch (status) {
       case 'Đã giao': return 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400';
@@ -47,10 +80,28 @@ const OrderManager = () => {
 
   return (
     <div className="space-y-6 animate-fade-in">
-      <div className="flex justify-between items-center bg-white dark:bg-gray-900 p-6 rounded-3xl shadow-sm border border-gray-100 dark:border-gray-800 transition-colors">
+      
+      {/* HEADER CÓ TABS CHUYỂN ĐỔI */}
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center bg-white dark:bg-gray-900 p-6 rounded-3xl shadow-sm border border-gray-100 dark:border-gray-800 transition-colors gap-4">
         <div>
           <h2 className="text-2xl font-bold text-gray-800 dark:text-white">Quản lý Đơn Hàng</h2>
-          <p className="text-gray-500 dark:text-gray-400 text-sm mt-1">Kiểm soát tiến độ giao hàng và doanh thu</p>
+          <p className="text-gray-500 dark:text-gray-400 text-sm mt-1">Kiểm soát tiến độ giao hàng và đối soát thanh toán</p>
+        </div>
+        
+        {/* Nút Tab (Giữ thiết kế bo tròn hài hòa) */}
+        <div className="flex gap-2 w-full md:w-auto">
+          <button 
+            onClick={() => setActiveTab('shipping')}
+            className={`flex-1 md:flex-none px-4 py-2 rounded-xl font-semibold text-sm transition-all flex items-center justify-center gap-2 ${activeTab === 'shipping' ? 'bg-blue-600 text-white' : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700'}`}
+          >
+            <i className="ri-truck-line"></i> Vận chuyển
+          </button>
+          <button 
+            onClick={() => setActiveTab('payment')}
+            className={`flex-1 md:flex-none px-4 py-2 rounded-xl font-semibold text-sm transition-all flex items-center justify-center gap-2 ${activeTab === 'payment' ? 'bg-blue-600 text-white' : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700'}`}
+          >
+            <i className="ri-qr-code-line"></i> Thanh toán QR
+          </button>
         </div>
       </div>
 
@@ -59,30 +110,40 @@ const OrderManager = () => {
           <table className="w-full text-left border-collapse">
             <thead>
               <tr className="bg-gray-50 dark:bg-gray-800/50 text-gray-600 dark:text-gray-300 border-b border-gray-100 dark:border-gray-800 text-sm uppercase tracking-wider">
-                <th className="p-5 font-semibold">Mã ĐH</th>
+                <th className="p-5 font-semibold">Mã ĐH {activeTab === 'payment' && '/ PayOS Code'}</th>
                 <th className="p-5 font-semibold">Khách hàng</th>
                 <th className="p-5 font-semibold">Ngày đặt</th>
                 <th className="p-5 font-semibold">Tổng tiền</th>
-                <th className="p-5 font-semibold">Trạng thái & Cập nhật</th>
+                {activeTab === 'shipping' ? (
+                  <th className="p-5 font-semibold">Trạng thái & Cập nhật</th>
+                ) : (
+                  <th className="p-5 font-semibold text-right">Đối soát QR</th>
+                )}
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100 dark:divide-gray-800">
               {isLoading ? (
                 <tr><td colSpan="5" className="text-center p-8 text-gray-500">Đang tải dữ liệu...</td></tr>
-              ) : orders.length === 0 ? (
-                <tr><td colSpan="5" className="text-center p-8 text-gray-500">Chưa có đơn hàng nào.</td></tr>
+              ) : displayedOrders.length === 0 ? (
+                <tr><td colSpan="5" className="text-center p-8 text-gray-500">Không tìm thấy đơn hàng nào.</td></tr>
               ) : (
-                orders.map((order) => {
+                displayedOrders.map((order) => {
                   const isLocked = order.status === 'Đã giao' || order.status === 'Đã hủy';
+                  const isDelivering = order.status === 'Đang giao hàng';
                   
-                  // Nhận diện đơn hàng chờ thanh toán
                   const isWaitingPayment = order.paymentMethod === 'QR' && !order.isPaid && order.status !== 'Đã hủy';
                   const displayStatus = isWaitingPayment ? 'Chờ thanh toán' : order.status;
 
                   return (
                     <tr key={order._id} className="hover:bg-gray-50 dark:hover:bg-gray-800/30 transition-colors">
-                      <td className="p-5 font-mono text-sm font-bold text-gray-800 dark:text-white">
-                        #{order._id.slice(-6).toUpperCase()}
+                      <td className="p-5">
+                        <p className="font-mono text-sm font-bold text-gray-800 dark:text-white">
+                          #{order._id.slice(-6).toUpperCase()}
+                        </p>
+                        {/* Hiện mã PayOS nếu đang ở tab Thanh toán */}
+                        {activeTab === 'payment' && (
+                          <p className="text-xs font-bold text-blue-600 mt-1 uppercase">{order.payosOrderCode || 'N/A'}</p>
+                        )}
                       </td>
                       <td className="p-5">
                         <p className="font-medium text-gray-800 dark:text-white">{order.shippingAddress.fullName}</p>
@@ -93,42 +154,63 @@ const OrderManager = () => {
                       </td>
                       <td className="p-5 font-bold text-blue-600 dark:text-blue-400">
                         {formatPrice(order.totalAmount)}
+                        <p className="text-[10px] text-gray-400 uppercase font-bold mt-1">{order.paymentMethod === 'QR' ? 'Chuyển khoản' : 'Tiền mặt'}</p>
                       </td>
-                      <td className="p-5">
-                        <div className="flex flex-col items-start gap-2">
-                          <span className={`px-3 py-1 rounded-full text-xs font-bold ${getStatusColor(displayStatus)}`}>
-                            {displayStatus}
-                          </span>
-                          
-                          {/* KIỂM TRA ĐIỀU KIỆN KHÓA */}
-                          {isLocked ? (
-                            <div className="text-xs text-gray-400 dark:text-gray-500 font-medium flex items-center gap-1 mt-1">
-                              <i className="ri-lock-2-line"></i> Không thể thay đổi
-                            </div>
-                          ) : isWaitingPayment ? (
-                            // NẾU LÀ ĐƠN CHỜ THANH TOÁN -> CHỈ CHO PHÉP HỦY ĐƠN
-                            <select 
-                              value="Chờ thanh toán"
-                              onChange={(e) => handleUpdateStatus(order._id, order.status, e.target.value)}
-                              className="text-sm bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg px-2 py-1 text-gray-700 dark:text-gray-300 focus:outline-none focus:border-red-500 transition-colors cursor-pointer"
-                            >
-                              <option value="Chờ thanh toán" disabled>Đang chờ tiền...</option>
-                              <option value="Đã hủy" className="text-red-500 font-bold">Hủy đơn hàng</option>
-                            </select>
+                      
+                      {/* RENDER CỘT CUỐI TÙY THUỘC VÀO TAB */}
+                      {activeTab === 'shipping' ? (
+                        <td className="p-5">
+                          <div className="flex flex-col items-start gap-2">
+                            <span className={`px-3 py-1 rounded-full text-xs font-bold ${getStatusColor(displayStatus)}`}>
+                              {displayStatus}
+                            </span>
+                            
+                            {isLocked ? (
+                              <div className="text-xs text-gray-400 dark:text-gray-500 font-medium flex items-center gap-1 mt-1">
+                                <i className="ri-lock-2-line"></i> Không thể thay đổi
+                              </div>
+                            ) : isWaitingPayment ? (
+                              <select 
+                                value="Chờ thanh toán"
+                                onChange={(e) => handleUpdateStatus(order._id, order.status, e.target.value)}
+                                className="text-sm bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg px-2 py-1 text-gray-700 dark:text-gray-300 focus:outline-none focus:border-red-500 transition-colors cursor-pointer"
+                              >
+                                <option value="Chờ thanh toán" disabled>Đang chờ tiền...</option>
+                                <option value="Đã hủy" className="text-red-500 font-bold">Hủy đơn hàng</option>
+                              </select>
+                            ) : (
+                              // CSS Dropdown được làm mượt mà hơn
+                              <select 
+                                value={order.status}
+                                onChange={(e) => handleUpdateStatus(order._id, order.status, e.target.value)}
+                                className="text-sm bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg px-2 py-1 text-gray-700 dark:text-gray-300 focus:outline-none focus:border-blue-500 transition-colors cursor-pointer"
+                              >
+                                <option value="Chờ xác nhận">Chờ xác nhận</option>
+                                <option value="Đang giao hàng">Giao cho Vận chuyển</option>
+                                {/* Ẩn Đã giao & Khóa Hủy nếu đang giao hàng */}
+                                {!isDelivering && <option value="Đã hủy" className="text-red-500 font-bold">Hủy đơn hàng</option>}
+                              </select>
+                            )}
+                          </div>
+                        </td>
+                      ) : (
+                        <td className="p-5 text-right">
+                          {order.isPaid ? (
+                            <span className="px-3 py-1 bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400 rounded-full text-xs font-bold">
+                              <i className="ri-check-line"></i> Đã thu tiền
+                            </span>
+                          ) : order.status === 'Đã hủy' ? (
+                            <span className="text-xs font-bold text-gray-400"><i className="ri-close-circle-fill"></i> Đã hủy</span>
                           ) : (
-                            // ĐƠN BÌNH THƯỜNG (COD hoặc đã thanh toán)
-                            <select 
-                              value={order.status}
-                              onChange={(e) => handleUpdateStatus(order._id, order.status, e.target.value)}
-                              className="text-sm bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg px-2 py-1 text-gray-700 dark:text-gray-300 focus:outline-none focus:border-blue-500 transition-colors cursor-pointer"
+                            <button 
+                              onClick={() => handleManualPaymentConfirm(order._id)}
+                              className="text-xs bg-blue-100 text-blue-600 hover:bg-blue-200 hover:text-blue-600 dark:bg-blue-900/30 dark:text-blue-400 dark:hover:bg-blue-900/50 dark:hover:text-blue-300 px-3 py-1.5 rounded-lg font-bold transition-colors"
                             >
-                              <option value="Chờ xác nhận">Chờ xác nhận</option>
-                              <option value="Đang giao hàng">Giao cho Vận chuyển</option>
-                              <option value="Đã hủy">Hủy đơn hàng</option>
-                            </select>
+                              Xác nhận
+                            </button>
                           )}
-                        </div>
-                      </td>
+                        </td>
+                      )}
                     </tr>
                   );
                 })

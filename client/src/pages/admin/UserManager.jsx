@@ -2,11 +2,21 @@ import React, { useState, useEffect } from 'react';
 import toast from 'react-hot-toast';
 import { userService } from '../../services/user.service';
 import useAuthStore from '../../store/auth.store';
+import { useSearchParams } from 'react-router-dom';
 
 const UserManager = () => {
   const [users, setUsers] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const { user: currentUser } = useAuthStore(); // Lấy thông tin admin đang đăng nhập để tránh tự khóa mình
+
+  const [searchParams] = useSearchParams();
+  const searchTerm = searchParams.get('q') || '';
+
+  // Logic lọc giữ nguyên không cần đổi
+  const filteredUsers = users.filter(user => 
+    `${user.lastname} ${user.firstname}`.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    user.email.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   const fetchUsers = async () => {
     try {
@@ -54,7 +64,8 @@ const UserManager = () => {
           <p className="text-gray-500 dark:text-gray-400 text-sm mt-1">Quản lý tài khoản và phân quyền hệ thống</p>
         </div>
         <div className="bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 px-4 py-2 rounded-xl font-bold">
-          Tổng cộng: {users.length}
+          {/* SỬA CHỖ NÀY 1: Đổi users.length thành filteredUsers.length */}
+          Tổng cộng: {filteredUsers.length}
         </div>
       </div>
 
@@ -73,10 +84,12 @@ const UserManager = () => {
             <tbody className="divide-y divide-gray-100 dark:divide-gray-800">
               {isLoading ? (
                 <tr><td colSpan="5" className="text-center p-8 text-gray-500">Đang tải dữ liệu...</td></tr>
-              ) : users.length === 0 ? (
-                <tr><td colSpan="5" className="text-center p-8 text-gray-500">Chưa có người dùng nào.</td></tr>
+              ) : filteredUsers.length === 0 ? (
+                // SỬA CHỖ NÀY ĐỂ BÁO NẾU TÌM KHÔNG THẤY
+                <tr><td colSpan="5" className="text-center p-8 text-gray-500">Không tìm thấy người dùng nào.</td></tr>
               ) : (
-                users.map((user) => (
+                // SỬA CHỖ NÀY 2: Đổi users.map thành filteredUsers.map
+                filteredUsers.map((user) => (
                   <tr key={user._id} className="hover:bg-gray-50 dark:hover:bg-gray-800/30 transition-colors">
                     <td className="p-5">
                       <div className="flex items-center gap-3">

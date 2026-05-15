@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import toast from 'react-hot-toast';
+import { useSearchParams } from 'react-router-dom'; // 1. IMPORT HOOK LẤY PARAMS TỪ URL
 import { categoryService } from '../../services/category.service';
 import { uploadService } from '../../services/upload.service';
 
@@ -18,6 +19,14 @@ const CategoryManager = () => {
 
   const { register, handleSubmit, reset, watch, setValue, formState: { errors } } = useForm();
   const bannerPreview = watch('bannerUrl');
+
+  // 2. LẤY TỪ KHÓA TỪ URL VÀ TẠO DANH SÁCH ĐÃ LỌC
+  const [searchParams] = useSearchParams();
+  const searchTerm = searchParams.get('q') || '';
+
+  const filteredCategories = categories.filter(cat => 
+    cat.name.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   const fetchCategories = async () => {
     try {
@@ -116,7 +125,7 @@ const CategoryManager = () => {
 
   return (
     <div className="space-y-6">
-      {/* Header & Nút Tạo mới */}
+      {/* Header & Nút Tạo mới (Không hiển thị số lượng) */}
       <div className="bg-white dark:bg-gray-900 p-6 rounded-3xl shadow-sm border border-gray-100 dark:border-gray-800 flex justify-between items-center">
         <div>
           <h2 className="text-2xl font-bold text-gray-800 dark:text-white">Quản Lý Danh Mục</h2>
@@ -145,11 +154,12 @@ const CategoryManager = () => {
             <tbody className="divide-y divide-gray-100 dark:divide-gray-800">
               {isLoading ? (
                 <tr><td colSpan="4" className="text-center p-8 text-gray-500">Đang tải dữ liệu...</td></tr>
-              ) : categories.length === 0 ? (
-                <tr><td colSpan="4" className="text-center p-8 text-gray-500">Chưa có danh mục nào.</td></tr>
+              ) : filteredCategories.length === 0 ? (
+                // 3. THAY ĐỔI ĐIỀU KIỆN MẢNG RỖNG BÁO TÌM KHÔNG THẤY
+                <tr><td colSpan="4" className="text-center p-8 text-gray-500">Không tìm thấy danh mục nào.</td></tr>
               ) : (
-                categories.map((cat) => {
-                  // Mặc định những category cũ chưa có field isActive thì coi như là true
+                // 4. MAP QUA DANH SÁCH ĐÃ LỌC (filteredCategories)
+                filteredCategories.map((cat) => {
                   const isActive = cat.isActive !== false; 
                   
                   return (

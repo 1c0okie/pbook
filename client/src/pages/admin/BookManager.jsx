@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import toast from 'react-hot-toast';
+import { useSearchParams } from 'react-router-dom'; // 1. IMPORT HOOK TÌM KIẾM
 import { bookService } from '../../services/book.service';
 import { authorService } from '../../services/author.service';
 import { categoryService } from '../../services/category.service';
@@ -23,6 +24,14 @@ const BookManager = () => {
 
   const { register, handleSubmit, reset, setValue, watch, formState: { errors } } = useForm();
   const imageUrlPreview = watch('imageUrl');
+
+  // 2. LẤY TỪ KHÓA TỪ URL VÀ LỌC DỮ LIỆU
+  const [searchParams] = useSearchParams();
+  const searchTerm = searchParams.get('q') || '';
+
+  const filteredBooks = books.filter(book => 
+    book.title.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   // Load Data
   const fetchData = async (pageNumber = 1) => {
@@ -55,7 +64,7 @@ const BookManager = () => {
     setEditingBook(null);
     reset({
       title: '', 
-      description: '', // <-- THÊM VÀO ĐÂY
+      description: '', 
       price: '', 
       sale_price: 0, 
       quantityInStock: 0,
@@ -72,7 +81,7 @@ const BookManager = () => {
   const handleOpenEditModal = (book) => {
     setEditingBook(book);
     setValue('title', book.title);
-    setValue('description', book.description || ''); // <-- THÊM VÀO ĐÂY
+    setValue('description', book.description || ''); 
     setValue('price', book.price);
     setValue('sale_price', book.sale_price);
     setValue('quantityInStock', book.quantityInStock);
@@ -81,7 +90,6 @@ const BookManager = () => {
     setValue('isFeatured', book.isFeatured);
     setValue('isBestSeller', book.isBestSeller);
     
-    // Xử lý select giá trị cũ
     setValue('author', book.author?._id || '');
     setValue('categories', book.categories.map(c => c._id));
     
@@ -150,12 +158,15 @@ const BookManager = () => {
           <h2 className="text-2xl font-bold text-gray-800 dark:text-white">Kho Sách</h2>
           <p className="text-gray-500 dark:text-gray-400 text-sm mt-1">Quản lý toàn bộ sản phẩm trong hệ thống</p>
         </div>
-        <button 
-          onClick={handleOpenAddModal}
-          className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-xl font-medium flex items-center gap-2 transition-colors"
-        >
-          <i className="ri-add-line text-xl"></i> Thêm Sách
-        </button>
+        <div className="flex items-center gap-4">
+         
+          <button 
+            onClick={handleOpenAddModal}
+            className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-xl font-medium flex items-center gap-2 transition-colors"
+          >
+            <i className="ri-add-line text-xl"></i> Thêm Sách
+          </button>
+        </div>
       </div>
 
       {/* Bảng dữ liệu */}
@@ -174,10 +185,12 @@ const BookManager = () => {
             <tbody className="divide-y divide-gray-100 dark:divide-gray-800">
               {isLoading ? (
                 <tr><td colSpan="5" className="text-center p-8 text-gray-500">Đang tải dữ liệu...</td></tr>
-              ) : books.length === 0 ? (
-                <tr><td colSpan="5" className="text-center p-8 text-gray-500">Kho sách trống.</td></tr>
+              ) : filteredBooks.length === 0 ? (
+                // 3. THAY ĐỔI ĐIỀU KIỆN MẢNG RỖNG VÀ TEXT THÔNG BÁO
+                <tr><td colSpan="5" className="text-center p-8 text-gray-500">Không tìm thấy sách nào.</td></tr>
               ) : (
-                books.map((book) => (
+                // 4. MAP QUA MẢNG FILTERED_BOOKS
+                filteredBooks.map((book) => (
                   <tr key={book._id} className="hover:bg-gray-50 dark:hover:bg-gray-800/30 transition-colors group">
                     <td className="p-5 flex items-center gap-4">
                       <div className="h-16 w-12 rounded-lg overflow-hidden bg-gray-100 dark:bg-gray-800 flex-shrink-0">
@@ -275,7 +288,6 @@ const BookManager = () => {
                     <input {...register('title', { required: true })} className="w-full px-4 py-2.5 rounded-xl bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 focus:ring-2 focus:ring-blue-500 text-gray-900 dark:text-white" />
                   </div>
                   
-                  {/* Ô MÔ TẢ ĐƯỢC THÊM VÀO ĐÂY */}
                   <div>
                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Mô tả sách</label>
                     <textarea 

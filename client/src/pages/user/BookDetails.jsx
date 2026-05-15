@@ -98,7 +98,7 @@ const BookDetails = () => {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 items-start">
           
           {/* CỘT TRÁI: ẢNH */}
-          <div className="lg:col-span-4 sticky top-40 flex justify-center lg:justify-start">
+<div className="lg:col-span-4 relative lg:sticky lg:top-40 flex justify-center lg:justify-start mb-8 lg:mb-0">
             <div className="relative w-full max-w-[320px] group">
               <div className="relative rounded-[0.5rem] overflow-hidden shadow-2xl shadow-blue-900/10 bg-gray-100 dark:bg-gray-800 aspect-[3/4]">
                 <img 

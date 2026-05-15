@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import toast from 'react-hot-toast';
+import { useSearchParams } from 'react-router-dom'; // 1. IMPORT HOOK TÌM KIẾM
 import { couponService } from '../../services/coupon.service';
 
 const CouponManager = () => {
@@ -9,6 +10,14 @@ const CouponManager = () => {
   const [isCreating, setIsCreating] = useState(false);
 
   const { register, handleSubmit, reset, formState: { errors } } = useForm();
+
+  // 2. LẤY TỪ KHÓA TỪ URL VÀ LỌC MÃ GIẢM GIÁ
+  const [searchParams] = useSearchParams();
+  const searchTerm = searchParams.get('q') || '';
+
+  const filteredCoupons = coupons.filter(coupon => 
+    coupon.code.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   const fetchCoupons = async () => {
     try {
@@ -64,6 +73,7 @@ const CouponManager = () => {
 
   return (
     <div className="space-y-6">
+      {/* HEADER: KHÔNG HIỂN THỊ SỐ LƯỢNG */}
       <div className="bg-white dark:bg-gray-900 p-6 rounded-3xl shadow-sm border border-gray-100 dark:border-gray-800 transition-colors">
         <h2 className="text-2xl font-bold text-gray-800 dark:text-white">Quản lý Mã Giảm Giá</h2>
         <p className="text-gray-500 dark:text-gray-400 text-sm mt-1">Tạo và kiểm soát các chiến dịch khuyến mãi</p>
@@ -133,10 +143,12 @@ const CouponManager = () => {
                 <tbody className="divide-y divide-gray-100 dark:divide-gray-800">
                   {isLoading ? (
                     <tr><td colSpan="5" className="text-center p-8 text-gray-500">Đang tải dữ liệu...</td></tr>
-                  ) : coupons.length === 0 ? (
-                    <tr><td colSpan="5" className="text-center p-8 text-gray-500">Chưa có mã giảm giá nào.</td></tr>
+                  ) : filteredCoupons.length === 0 ? (
+                    // 3. THAY ĐỔI ĐIỀU KIỆN MẢNG RỖNG NẾU TÌM KHÔNG THẤY
+                    <tr><td colSpan="5" className="text-center p-8 text-gray-500">Không tìm thấy mã giảm giá nào.</td></tr>
                   ) : (
-                    coupons.map((coupon) => {
+                    // 4. LẶP QUA MẢNG FILTERED COUPONS
+                    filteredCoupons.map((coupon) => {
                       const isExpired = new Date(coupon.expiryDate) < new Date();
                       
                       return (
