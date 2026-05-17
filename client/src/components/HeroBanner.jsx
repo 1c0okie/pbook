@@ -44,10 +44,7 @@ const HeroBanner = ({
           <div className="space-y-8 relative">
             {/* Tagline */}
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-blue-50 border border-blue-100 dark:bg-gray-800 dark:border-gray-700 shadow-sm transition-colors duration-300">
-              <span className="flex h-2.5 w-2.5 relative">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-blue-600"></span>
-              </span>
+             
               <span className="text-blue-600 dark:text-blue-400 text-sm font-bold tracking-wide uppercase">
                 {tagline}
               </span>
