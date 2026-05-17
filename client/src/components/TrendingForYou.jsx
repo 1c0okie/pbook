@@ -21,7 +21,7 @@ const TrendingForYou = ({ trendingBooks = [] }) => {
   
   // Hàm render số sao
   const renderStars = (rating) => {
-    const validRating = rating || 5; 
+    const validRating = rating || null; 
     return [...Array(5)].map((_, index) => (
       <i key={index} 
          className={`ri-star-fill text-base ${index < validRating ? 'text-white' : 'text-white/40'}`}>
@@ -78,12 +78,32 @@ const TrendingForYou = ({ trendingBooks = [] }) => {
                           {renderStars(book.rating)}
                         </div>
 
+                       {/* ĐOẠN ĐÃ SỬA: HIỂN THỊ NGƯỜI MUA THẬT */}
                         <div className="flex items-center">
-                          <img src={`https://i.pravatar.cc/150?u=${book._id}1`} className="w-8 h-8 rounded-full border-2 border-white object-cover shadow-sm" alt="user" />
-                          <img src={`https://i.pravatar.cc/150?u=${book._id}2`} className="w-8 h-8 rounded-full border-2 border-white object-cover shadow-sm -ml-2.5" alt="user" />
-                          <div className="h-8 px-2 rounded-full bg-white/20 border-2 border-white flex items-center justify-center text-xs font-bold shadow-sm -ml-2.5 backdrop-blur-sm">
-                            +{book.readCount || Math.floor(Math.random() * 100) + 10}
-                          </div>
+                          {book.buyers && book.buyers.length > 0 ? (
+                            <>
+                              {/* Lấy tối đa 3 ảnh avatar của khách hàng */}
+                              {book.buyers.slice(0, 3).map((buyer, bIndex) => (
+                                <img 
+                                  key={buyer._id || bIndex}
+                                  src={buyer.avatarUrl || "https://i.pravatar.cc/150?u=default"} 
+                                  className={`w-8 h-8 rounded-full border-2 border-white object-cover shadow-sm ${bIndex > 0 ? '-ml-2.5' : ''}`} 
+                                  alt="user" 
+                                  title={`${buyer.lastname || ''} ${buyer.firstname || ''}`.trim()}
+                                />
+                              ))}
+                              
+                              {/* Tính toán hiển thị số lượng người mua còn lại dựa trên trường sold */}
+                              {((book.sold || book.buyers.length) - Math.min(book.buyers.length, 3)) > 0 && (
+                                <div className="h-8 px-2 rounded-full bg-white/20 border-2 border-white flex items-center justify-center text-xs font-bold shadow-sm -ml-2.5 backdrop-blur-sm">
+                                  +{ (book.sold || book.buyers.length) - Math.min(book.buyers.length, 3) }
+                                </div>
+                              )}
+                            </>
+                          ) : (
+                            /* Hiện thông báo nhẹ nhàng nếu chưa có ai mua */
+                            <span className="text-xs text-white/80 font-medium italic">Chưa có lượt mua</span>
+                          )}
                         </div>
                       </div>
 

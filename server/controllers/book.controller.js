@@ -1,6 +1,8 @@
 import Book from '../models/Book.js';
 import Author from '../models/Author.js';
+import Order from '../models/Order.js';
 // 1. IMPORT HÀM GHI LOG VÀO ĐÂY:
+import { attachBuyersToBooks } from '../utils/helpers.js'; 
 import { logAction } from './audit.controller.js';
 
 // @desc    Lấy danh sách sách (Có phân trang, tìm kiếm, lọc)
@@ -309,6 +311,23 @@ export const getAllSystemReviews = async (req, res, next) => {
     ]);
 
     res.json({ reviews });
+  } catch (error) {
+    next(error);
+  }
+};
+
+
+
+export const getTrendingBooks = async (req, res, next) => {
+  try {
+    const books = await Book.find({ isTrending: true })
+      .populate('author', 'name')
+      .lean();
+
+    // Dùng hàm Helper để gắn người mua
+    const booksWithBuyers = await attachBuyersToBooks(books);
+
+    res.json(booksWithBuyers);
   } catch (error) {
     next(error);
   }

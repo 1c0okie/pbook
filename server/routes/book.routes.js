@@ -8,11 +8,13 @@ import {
   syncCart,
   createBookReview,
   updateBookReview,
-  getAllSystemReviews
+  getAllSystemReviews,
+  getTrendingBooks
 } from '../controllers/book.controller.js';
 import { mustBeAuthenticated, verifyAdmin } from '../middlewares/auth.middleware.js';
 
 const router = express.Router();
+router.get('/trending', getTrendingBooks);
 router.get('/reviews/all', getAllSystemReviews);
 router.route('/')
   .get(getBooks)

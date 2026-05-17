@@ -29,5 +29,10 @@ export const bookService = {
   updateReview: async (id, reviewData) => {
       const response = await api.put(`/books/${id}/reviews`, reviewData);
       return response.data;
-    }
+    },
+  getTrending: async () => {
+    // Gọi API /api/v1/books/trending (bạn điều chỉnh lại URL cho khớp với Backend của bạn)
+    const response = await api.get('/books/trending'); 
+    return response.data;
+  }
 };

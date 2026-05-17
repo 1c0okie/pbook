@@ -6,10 +6,10 @@ const BrowseAndAuthors = ({ browseBooks = [], authorsList = [] }) => {
 
   // Hàm render số sao
   const renderStars = (rating) => {
-    const validRating = rating || 5; // Mặc định 5 sao nếu API không có
+    const validRating = rating || null; // Mặc định 5 sao nếu API không có
     return [...Array(5)].map((_, index) => (
       <i key={index} 
-         className={`ri-star-fill text-sm ${index < validRating ? 'text-blue-400' : 'text-gray-200 dark:text-gray-700'}`}>
+         className={`ri-star-fill text-sm ${index < validRating ? 'text-blue-600' : 'text-gray-200 dark:text-gray-700'}`}>
       </i>
     ));
   };
@@ -50,6 +50,7 @@ const BrowseAndAuthors = ({ browseBooks = [], authorsList = [] }) => {
                         <p className="text-base text-gray-500 mt-1.5 mb-2.5 line-clamp-1">{authorName || "Unknown"}</p>
                         <div className="flex gap-1">
                           {renderStars(book.rating)}
+                          {console.log('Book rating:', book.rating)} {/* Debug: Kiểm tra giá trị rating */}
                         </div>
                       </div>
                     </Link>
