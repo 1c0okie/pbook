@@ -32,8 +32,11 @@ const AdminSidebar = () => {
     {
       title: 'Hệ thống',
       items: [
-        { name: 'Nhật ký', path: '/admin/audit-logs', icon: 'ri-file-list-3-line' },
+        { name: 'Trang Chủ', path: '/admin/home', icon: 'ri-home-2-line' },
         { name: 'Cài Đặt', path: '/admin/settings', icon: 'ri-settings-3-line' },
+        { name: 'Nhật ký', path: '/admin/audit-logs', icon: 'ri-file-list-3-line' },
+       
+        
       ]
     }
   ];

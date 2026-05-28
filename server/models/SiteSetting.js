@@ -39,7 +39,14 @@ const siteSettingSchema = new mongoose.Schema({
       { icon: 'ri-money-dollar-circle-line', title: 'Phí vận chuyển', content: 'Phí vận chuyển được tính dựa trên khoảng cách. Miễn phí vận chuyển cho đơn hàng từ 500.000đ.' },
       { icon: 'ri-shield-check-line', title: 'Quy định đồng kiểm', content: 'Cho phép đồng kiểm trạng thái sách trước khi thanh toán.' }
     ]
-  }
+  },
+  // Thêm vào bên trong Setting Schema
+    homePageLayout: {
+      type: [String],
+      default: [
+        'hero', 'services', 'trending', 'browse', 'promo', 'bestseller', 'new', 'testimonial'
+      ]
+    }
 }, { timestamps: true });
 
 export default mongoose.model('SiteSetting', siteSettingSchema);

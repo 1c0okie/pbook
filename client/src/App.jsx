@@ -38,6 +38,7 @@ import AuditLogManager from './pages/admin/AuditLogManager';
 import ForgotPassword from './pages/ForgotPassword';
 import ResetPassword from './pages/ResetPassword';
 import ScrollToTop from './components/ScrollToTop';
+import HomePageLayoutManager from './pages/admin/HomePageLayoutManager';
 import { useScrollReveal } from './hooks/useScrollReveal';
 const GlobalAnimations = () => {
   useScrollReveal();
@@ -137,6 +138,7 @@ function App() {
           <Route element={<AdminLayout />}>
             {/* Index route của AdminLayout */}
             <Route path="/admin/dashboard" element={<AdminDashboard />} />
+            <Route path="/admin/home" element={<HomePageLayoutManager />} />
             
             {/* Các trang sẽ làm ở bước tiếp theo */}
             <Route path="/admin/categories" element={<CategoryManager />} />
