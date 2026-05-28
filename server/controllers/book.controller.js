@@ -5,7 +5,7 @@ import Order from '../models/Order.js';
 import { attachBuyersToBooks } from '../utils/helpers.js'; 
 import { logAction } from './audit.controller.js';
 
-// @desc    Lấy danh sách sách (Có phân trang, tìm kiếm, lọc)
+// @desc    Lấy danh sách sách (Có phân trang, tìm kiếm theo tên và TÁC GIẢ, lọc)
 // @route   GET /api/v1/books
 // @access  Public
 export const getBooks = async (req, res, next) => {
@@ -13,12 +13,30 @@ export const getBooks = async (req, res, next) => {
     const pageSize = Number(req.query.pageSize) || 12; 
     const page = Number(req.query.pageNumber) || 1;
 
-    const keyword = req.query.keyword
-      ? { title: { $regex: req.query.keyword, $options: 'i' } } 
-      : {};
+    let query = {};
 
-    const categoryFilter = req.query.category ? { categories: req.query.category } : {};
-    const query = { ...keyword, ...categoryFilter };
+    // 1. XỬ LÝ TÌM KIẾM (TÊN SÁCH + TÊN TÁC GIẢ)
+    if (req.query.keyword) {
+      // Regex tìm kiếm không phân biệt hoa thường
+      const keywordRegex = { $regex: req.query.keyword, $options: 'i' };
+
+      // Tìm các tác giả có tên khớp với từ khóa
+      const matchedAuthors = await Author.find({ name: keywordRegex }).select('_id');
+      const authorIds = matchedAuthors.map(author => author._id);
+
+      // Cập nhật query: Tìm theo tên sách HOẶC nằm trong mảng tác giả vừa tìm
+      query.$or = [
+        { title: keywordRegex },
+        { author: { $in: authorIds } }
+      ];
+    }
+
+    // 2. XỬ LÝ LỌC THEO THỂ LOẠI
+    if (req.query.category) {
+      query.categories = req.query.category;
+    }
+
+    // 3. THỰC THI TRUY VẤN DỮ LIỆU
     const count = await Book.countDocuments(query);
 
     const books = await Book.find(query)
