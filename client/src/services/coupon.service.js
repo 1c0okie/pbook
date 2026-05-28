@@ -6,6 +6,12 @@ export const couponService = {
     return response.data;
   },
   
+  // Lấy các mã được phép hiển thị trên trang chủ (dành cho PromoSection)
+  getPromoCoupons: async () => {
+    const response = await api.get('/coupons/promo'); 
+    return response.data;
+  },
+  
   // Các hàm dành cho Admin
   getAll: async () => {
     const response = await api.get('/coupons');
@@ -21,6 +27,11 @@ export const couponService = {
   },
   toggleStatus: async (id) => {
     const response = await api.put(`/coupons/${id}/status`);
+    return response.data;
+  },
+  // HÀM MỚI: Bật/tắt trạng thái hiển thị trên trang chủ
+  toggleShowOnHome: async (id) => {
+    const response = await api.put(`/coupons/${id}/show-home`);
     return response.data;
   }
 };

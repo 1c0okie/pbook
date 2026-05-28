@@ -120,3 +120,53 @@ export const toggleCouponStatus = async (req, res, next) => {
     next(error);
   }
 };
+
+// @desc    Lấy danh sách mã giảm giá để hiển thị ở trang chủ
+// @route   GET /api/v1/coupons/promo
+// @access  Public
+export const getPromoCoupons = async (req, res, next) => {
+  try {
+    // Chỉ lấy các mã đang hoạt động, được phép hiện trang chủ và chưa hết hạn
+    const coupons = await Coupon.find({ 
+      isActive: true,
+      isShowOnHome: true,
+      expiryDate: { $gt: new Date() } // Đảm bảo mã chưa hết hạn
+    }).sort({ discount: -1 }); // Ưu tiên xếp mã giảm giá cao nhất lên đầu
+
+    res.json(coupons);
+  } catch (error) {
+    next(error);
+  }
+};
+
+// @desc    Bật/Tắt trạng thái hiển thị trang chủ
+// @route   PUT /api/v1/coupons/:id/show-home
+// @access  Private/Admin
+export const toggleShowOnHome = async (req, res, next) => {
+  try {
+    const coupon = await Coupon.findById(req.params.id);
+    if (!coupon) {
+      res.status(404);
+      throw new Error('Không tìm thấy mã giảm giá');
+    }
+    
+    // Đảo ngược trạng thái
+    coupon.isShowOnHome = !coupon.isShowOnHome; 
+    await coupon.save();
+
+    // GHI LOG (Đồng bộ với hệ thống audit của bạn)
+    await logAction(
+      req.user._id, 
+      'SỬA', 
+      'Mã Giảm Giá', 
+      `Đã ${coupon.isShowOnHome ? 'HIỆN' : 'ẨN'} mã ${coupon.code} trên trang chủ`
+    );
+
+    res.json({ 
+      message: `Đã ${coupon.isShowOnHome ? 'hiện' : 'ẩn'} mã trên trang chủ`, 
+      isShowOnHome: coupon.isShowOnHome 
+    });
+  } catch (error) {
+    next(error);
+  }
+};
