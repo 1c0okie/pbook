@@ -5,6 +5,7 @@ import { useSearchParams } from 'react-router-dom';
 import { couponService } from '../../services/coupon.service';
 
 const CouponManager = () => {
+  const today = new Date().toISOString().split('T')[0];
   const [coupons, setCoupons] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isCreating, setIsCreating] = useState(false);
@@ -123,6 +124,7 @@ const CouponManager = () => {
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Ngày hết hạn</label>
                 <input 
                   type="date"
+                  min={today}
                   {...register('expiryDate', { required: 'Vui lòng chọn ngày hết hạn' })}
                   className="w-full px-4 py-3 rounded-2xl bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 focus:border-blue-500 outline-none text-gray-900 dark:text-white"
                 />
