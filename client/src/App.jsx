@@ -40,6 +40,8 @@ import ResetPassword from './pages/ResetPassword';
 import ScrollToTop from './components/ScrollToTop';
 import HomePageLayoutManager from './pages/admin/HomePageLayoutManager';
 import { useScrollReveal } from './hooks/useScrollReveal';
+import ChatWidget from './components/ChatWidget';
+import AdminChat from './pages/admin/AdminChat';
 const GlobalAnimations = () => {
   useScrollReveal();
   return null; // Component này chạy ngầm, không render gì ra màn hình
@@ -67,6 +69,7 @@ function App() {
     <Router>
       <ScrollToTop />
       <GlobalAnimations />
+      <ChatWidget />
       {/* Cấu hình Toaster toàn cục */}
       <Toaster
         position="bottom-right" // Chuyển xuống góc dưới bên phải để tránh che Form
@@ -152,6 +155,7 @@ function App() {
             <Route path="/admin/contacts" element={<ContactManager />} />
             <Route path="/admin/faq" element={<FAQManager />} />
             <Route path="/admin/audit-logs" element={<AuditLogManager />} />
+            <Route path="/admin/chat" element={<AdminChat />} />
             
           </Route>
         </Route>  

@@ -21,6 +21,7 @@
     "recharts": "^3.8.1",
     "remixicon": "^4.9.1",
     "scrollreveal": "^4.0.9",
+    "socket.io-client": "^4.8.3",
     "swiper": "^12.1.4",
     "yup": "^1.7.1",
     "zustand": "^5.0.13"

@@ -1,20 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import toast from 'react-hot-toast';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams, useNavigate } from 'react-router-dom'; // THÊM useNavigate
 import { orderService } from '../../services/order.service';
 import { formatPrice } from '../../utils/format';
 
 const OrderManager = () => {
   const [orders, setOrders] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
-  
-  // STATE QUẢN LÝ TAB
   const [activeTab, setActiveTab] = useState('shipping');
 
   const [searchParams] = useSearchParams();
   const searchTerm = searchParams.get('q') || '';
+  const navigate = useNavigate(); // Dùng để điều hướng xóa bộ lọc
 
-  // Lọc theo TỪ KHÓA và theo TAB
   const displayedOrders = orders.filter(order => {
     const matchesSearch = 
       order._id.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -45,7 +43,6 @@ const OrderManager = () => {
 
   const handleUpdateStatus = async (id, currentStatus, newStatus) => {
     if (currentStatus === newStatus) return;
-    
     try {
       await orderService.updateStatus(id, newStatus);
       toast.success(`Đã cập nhật trạng thái thành: ${newStatus}`);
@@ -55,7 +52,6 @@ const OrderManager = () => {
     }
   };
 
-  // Hàm xác nhận thanh toán thủ công cho đơn QR
   const handleManualPaymentConfirm = async (id) => {
     if (window.confirm('Xác nhận khách hàng đã chuyển khoản thành công?')) {
       try {
@@ -66,6 +62,10 @@ const OrderManager = () => {
         toast.error('Lỗi khi xác nhận thanh toán');
       }
     }
+  };
+
+  const clearSearch = () => {
+    navigate('/admin/orders'); // Xóa query string trên URL để reset bảng
   };
 
   const getStatusColor = (status) => {
@@ -81,14 +81,26 @@ const OrderManager = () => {
   return (
     <div className="space-y-6 animate-fade-in">
       
-      {/* HEADER CÓ TABS CHUYỂN ĐỔI */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center bg-white dark:bg-gray-900 p-6 rounded-3xl shadow-sm border border-gray-100 dark:border-gray-800 transition-colors gap-4">
         <div>
           <h2 className="text-2xl font-bold text-gray-800 dark:text-white">Quản lý Đơn Hàng</h2>
           <p className="text-gray-500 dark:text-gray-400 text-sm mt-1">Kiểm soát tiến độ giao hàng và đối soát thanh toán</p>
+          
+          {/* HIỂN THỊ BADGE BÁO HIỆU ĐANG LỌC TỪ KHUNG CHAT SANG */}
+          {searchTerm && (
+            <div className="mt-3 inline-flex items-center gap-2 bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 px-3 py-1.5 rounded-lg text-sm font-bold border border-blue-100 dark:border-blue-800">
+              <i className="ri-search-line"></i> Đang hiển thị đơn hàng: #{searchTerm.slice(-6).toUpperCase()}
+              <button 
+                onClick={clearSearch}
+                className="ml-2 text-gray-400 hover:text-red-500 bg-white dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full w-5 h-5 flex items-center justify-center transition-colors shadow-sm"
+                title="Xóa bộ lọc"
+              >
+                <i className="ri-close-line"></i>
+              </button>
+            </div>
+          )}
         </div>
         
-        {/* Nút Tab (Giữ thiết kế bo tròn hài hòa) */}
         <div className="flex gap-2 w-full md:w-auto">
           <button 
             onClick={() => setActiveTab('shipping')}
@@ -125,7 +137,7 @@ const OrderManager = () => {
               {isLoading ? (
                 <tr><td colSpan="5" className="text-center p-8 text-gray-500">Đang tải dữ liệu...</td></tr>
               ) : displayedOrders.length === 0 ? (
-                <tr><td colSpan="5" className="text-center p-8 text-gray-500">Không tìm thấy đơn hàng nào.</td></tr>
+                <tr><td colSpan="5" className="text-center p-8 text-gray-500 font-medium">Không tìm thấy đơn hàng nào khớp với tìm kiếm.</td></tr>
               ) : (
                 displayedOrders.map((order) => {
                   const isLocked = order.status === 'Đã giao' || order.status === 'Đã hủy';
@@ -135,12 +147,11 @@ const OrderManager = () => {
                   const displayStatus = isWaitingPayment ? 'Chờ thanh toán' : order.status;
 
                   return (
-                    <tr key={order._id} className="hover:bg-gray-50 dark:hover:bg-gray-800/30 transition-colors">
+                    <tr key={order._id} className={`hover:bg-gray-50 dark:hover:bg-gray-800/30 transition-colors ${searchTerm === order._id ? 'bg-blue-50/50 dark:bg-blue-900/10' : ''}`}>
                       <td className="p-5">
                         <p className="font-mono text-sm font-bold text-gray-800 dark:text-white">
                           #{order._id.slice(-6).toUpperCase()}
                         </p>
-                        {/* Hiện mã PayOS nếu đang ở tab Thanh toán */}
                         {activeTab === 'payment' && (
                           <p className="text-xs font-bold text-blue-600 mt-1 uppercase">{order.payosOrderCode || 'N/A'}</p>
                         )}
@@ -157,7 +168,6 @@ const OrderManager = () => {
                         <p className="text-[10px] text-gray-400 uppercase font-bold mt-1">{order.paymentMethod === 'QR' ? 'Chuyển khoản' : 'Tiền mặt'}</p>
                       </td>
                       
-                      {/* RENDER CỘT CUỐI TÙY THUỘC VÀO TAB */}
                       {activeTab === 'shipping' ? (
                         <td className="p-5">
                           <div className="flex flex-col items-start gap-2">
@@ -179,7 +189,6 @@ const OrderManager = () => {
                                 <option value="Đã hủy" className="text-red-500 font-bold">Hủy đơn hàng</option>
                               </select>
                             ) : (
-                              // CSS Dropdown được làm mượt mà hơn
                               <select 
                                 value={order.status}
                                 onChange={(e) => handleUpdateStatus(order._id, order.status, e.target.value)}
@@ -187,7 +196,6 @@ const OrderManager = () => {
                               >
                                 <option value="Chờ xác nhận">Chờ xác nhận</option>
                                 <option value="Đang giao hàng">Giao cho Vận chuyển</option>
-                                {/* Ẩn Đã giao & Khóa Hủy nếu đang giao hàng */}
                                 {!isDelivering && <option value="Đã hủy" className="text-red-500 font-bold">Hủy đơn hàng</option>}
                               </select>
                             )}

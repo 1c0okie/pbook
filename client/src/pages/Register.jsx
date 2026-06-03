@@ -7,10 +7,24 @@ import { useNavigate, Link } from 'react-router-dom';
 
 // Schema validation
 const schema = yup.object().shape({
-  firstname: yup.string().required('Vui lòng nhập Tên'),
-  lastname: yup.string().required('Vui lòng nhập Họ'),
-  email: yup.string().email('Email không hợp lệ').required('Vui lòng nhập email'),
-  password: yup.string().min(6, 'Mật khẩu phải từ 6 ký tự').required('Vui lòng nhập mật khẩu'),
+  firstname: yup.string()
+    .required('Vui lòng nhập Tên')
+    .min(2, 'Tên phải có ít nhất 2 ký tự')
+    .matches(/^[^0-9]*$/, 'Tên không được chứa chữ số'),
+    
+  lastname: yup.string()
+    .required('Vui lòng nhập Họ')
+    .min(2, 'Họ phải có ít nhất 2 ký tự')
+    .matches(/^[^0-9]*$/, 'Họ không được chứa chữ số'),
+    
+  email: yup.string()
+    .email('Email không hợp lệ')
+    .required('Vui lòng nhập email'),
+    
+  password: yup.string()
+    .min(6, 'Mật khẩu phải từ 6 ký tự')
+    .required('Vui lòng nhập mật khẩu'),
+    
   confirmPassword: yup.string()
     .oneOf([yup.ref('password'), null], 'Mật khẩu xác nhận không khớp')
     .required('Vui lòng xác nhận mật khẩu'),
@@ -23,6 +37,7 @@ const Register = () => {
 
   const { register, handleSubmit, formState: { errors } } = useForm({
     resolver: yupResolver(schema),
+    mode: 'onChange',
   });
 
   const onSubmit = async (data) => {

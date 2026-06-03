@@ -11,8 +11,14 @@ import api from '../utils/api';
 
 // Schema validation
 const schema = yup.object().shape({
-  email: yup.string().email('Email không hợp lệ').required('Vui lòng nhập email'),
-  password: yup.string().min(6, 'Mật khẩu phải từ 6 ký tự').required('Vui lòng nhập mật khẩu'),
+  email: yup.string()
+    .trim() // Tự động xóa khoảng trắng ở 2 đầu nếu người dùng lỡ copy dư
+    .email('Email không hợp lệ')
+    .required('Vui lòng nhập email'),
+    
+  password: yup.string()
+    .min(6, 'Mật khẩu phải từ 6 ký tự')
+    .required('Vui lòng nhập mật khẩu'),
 });
 
 const Login = () => {
@@ -45,6 +51,7 @@ const loginWithGoogle = useGoogleLogin({
 
   const { register, handleSubmit, formState: { errors } } = useForm({
     resolver: yupResolver(schema),
+    mode: 'onChange',
   });
 
   const onSubmit = async (data) => {

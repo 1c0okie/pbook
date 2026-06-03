@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import useThemeStore from '../../store/theme.store';
 import useAuthStore from '../../store/auth.store';
@@ -6,15 +6,27 @@ import useCartStore from '../../store/cart.store';
 import useWishlistStore from '../../store/wishlist.store';
 import SearchBar from '../../components/SearchBar';
 import useSettingStore from '../../store/setting.store';
+import useChatStore from '../../store/chat.store'; 
 
 const UserHeader = () => {
   const { settings } = useSettingStore();
   const { theme, toggleTheme } = useThemeStore();
   const { user, isAuthenticated, logout } = useAuthStore();
   const { cartItems, toggleCart } = useCartStore();
-  const navigate = useNavigate();
   const { wishlist } = useWishlistStore();
+  const navigate = useNavigate();
 
+  // SỬA Ở ĐÂY: Lấy thẳng unreadCount từ store ra, không lấy messages nữa
+  const { connectSocket, disconnectSocket, openChat, unreadCount } = useChatStore();
+
+  useEffect(() => {
+    if (isAuthenticated && user) {
+      connectSocket(user._id, user.isAdmin); 
+    } else {
+      disconnectSocket();
+    }
+  }, [isAuthenticated, user, connectSocket, disconnectSocket]);
+  
   const handleLogout = () => {
     logout();
     navigate('/');
@@ -24,6 +36,7 @@ const UserHeader = () => {
     <header className="sticky top-0 z-50 bg-white/80 dark:bg-gray-900/80 backdrop-blur-lg border-b border-gray-100 dark:border-gray-800 transition-colors duration-300">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-20">
+          
           {/* Logo */}
           <Link to="/" className="flex items-center gap-3">
             <img 
@@ -40,7 +53,7 @@ const UserHeader = () => {
 
           {/* Right Actions */}
           <div className="flex items-center gap-3 sm:gap-5">
-            {/* Theme Toggle - Thay đổi hover background sang hover text color */}
+            {/* Theme Toggle */}
             <button 
               onClick={toggleTheme} 
               className="p-2.5 rounded-full text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
@@ -48,7 +61,25 @@ const UserHeader = () => {
               <i className={theme === 'dark' ? 'ri-sun-line text-xl' : 'ri-moon-clear-line text-xl'}></i>
             </button>
 
-            {/* Wishlist Icon - Thay đổi hover background sang hover text color */}
+            {/* NÚT MỞ CHAT */}
+            {isAuthenticated && !user?.isAdmin && (
+              <button 
+                onClick={() => openChat()} 
+                className="relative p-2.5 rounded-full text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+                title="Hỗ trợ trực tuyến"
+              >
+                <i className="ri-chat-3-line text-xl"></i>
+                
+                {/* HIỂN THỊ SỐ TIN NHẮN MỚI (NẾU > 0) */}
+                {unreadCount > 0 && (
+                  <span className="absolute top-0 right-0 bg-red-500 text-white text-[10px] font-bold min-w-[18px] h-[18px] px-1 rounded-full flex items-center justify-center border-2 border-white dark:border-gray-900 shadow-sm animate-bounce">
+                    {unreadCount > 99 ? '99+' : unreadCount}
+                  </span>
+                )}
+              </button>
+            )}
+
+            {/* Wishlist Icon */}
             <Link to="/wishlist" className="relative p-2.5 rounded-full text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
               <i className="ri-heart-3-line text-xl"></i>
               {wishlist.length > 0 && (
@@ -58,7 +89,7 @@ const UserHeader = () => {
               )}
             </Link>
 
-            {/* Cart Toggle - Thay đổi hover background sang hover text color */}
+            {/* Cart Toggle */}
             <button 
               onClick={toggleCart} 
               className="relative p-2.5 rounded-full text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"

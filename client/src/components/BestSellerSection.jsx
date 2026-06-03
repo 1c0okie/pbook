@@ -5,11 +5,15 @@ import BookCard from './BookCard';
 const BestSellerSection = ({ bestSellerBooks }) => {
   if (!bestSellerBooks || bestSellerBooks.length === 0) return null;
 
-  // Lấy cuốn đầu tiên làm Top 1 (Sách to bên trái)
-  const top1Book = bestSellerBooks[0];
+  // SẮP XẾP LẠI THEO LƯỢT BÁN GIẢM DẦN (Dựa vào trường 'sold')
+  // Dùng [...bestSellerBooks] để copy mảng, tránh làm thay đổi state gốc của React
+  const sortedBooks = [...bestSellerBooks].sort((a, b) => (b.sold || 0) - (a.sold || 0));
+
+  // Lấy cuốn đầu tiên (Đã được sắp xếp bán nhiều nhất) làm Top 1
+  const top1Book = sortedBooks[0];
   
-  // Lấy tối đa 8 cuốn tiếp theo (từ vị trí 1 đến 9) để xếp đẹp thành 2 hàng x 4 cột bên phải
-  const remainingBooks = bestSellerBooks.slice(1, 9);
+  // Lấy tối đa 8 cuốn tiếp theo
+  const remainingBooks = sortedBooks.slice(1, 9);
 
   return (
     <section className="container mx-auto px-4 sm:px-6 lg:px-8 mt-24 mb-10 transition-colors duration-300">
@@ -50,7 +54,7 @@ const BestSellerSection = ({ bestSellerBooks }) => {
             <div className="relative z-10 flex-1 flex items-center justify-center mt-10 mb-8">
               <Link to={`/book/${top1Book._id}`} className="block">
                 <img 
-                  // Hỗ trợ nhiều tên trường ảnh tùy theo backend của bạn (imageUrl, image, coverImage)
+                  // Hỗ trợ nhiều tên trường ảnh tùy theo backend của bạn
                   src={top1Book.imageUrl || top1Book.image || top1Book.coverImage || "https://placehold.co/300x450?text=Book"} 
                   alt={top1Book.title} 
                   className="w-48 md:w-56 lg:w-64 object-contain drop-shadow-2xl transition-transform duration-500 group-hover:scale-105 group-hover:-rotate-3"
@@ -62,6 +66,8 @@ const BestSellerSection = ({ bestSellerBooks }) => {
             <div className="relative z-10 text-center space-y-3 bg-white/60 dark:bg-gray-950/60 backdrop-blur-md p-6 rounded-3xl border border-white/50 dark:border-gray-800/50">
               <div className="inline-block px-3 py-1 rounded-lg bg-blue-100 dark:bg-blue-900/40 text-xs font-bold text-blue-600 dark:text-blue-400 mb-2">
                 Bán chạy nhất tuần
+                {/* Tùy chọn: Hiển thị thêm số lượng bán ra */}
+                {top1Book.sold > 0 && <span className="ml-1 text-gray-500 dark:text-gray-400">({top1Book.sold} đã bán)</span>}
               </div>
               <Link to={`/book/${top1Book._id}`}>
                 <h3 className="text-xl md:text-2xl font-black text-gray-900 dark:text-white line-clamp-2 hover:text-blue-600 transition-colors">
@@ -69,7 +75,6 @@ const BestSellerSection = ({ bestSellerBooks }) => {
                 </h3>
               </Link>
               <p className="text-gray-500 dark:text-gray-400 font-medium text-sm">
-                {/* Xử lý trường hợp author là object hoặc string */}
                 {top1Book.author?.name || top1Book.author || "Đang cập nhật"}
               </p>
               

@@ -7,6 +7,7 @@ import { orderService } from '../../services/order.service';
 import { userService } from '../../services/user.service';
 import { uploadService } from '../../services/upload.service';
 import { formatPrice } from '../../utils/format';
+import useChatStore from '../../store/chat.store'; // Import Hook
 
 // IMPORT COMPONENT MÃ QR
 import PaymentQR from '../../components/PaymentQR';
@@ -28,6 +29,7 @@ const Profile = () => {
   const [savedAddresses, setSavedAddresses] = useState(user?.addresses || []);
   const [showAddressForm, setShowAddressForm] = useState(false);
   const [editingAddressId, setEditingAddressId] = useState(null);
+  const { openChat } = useChatStore();
 
   const { register: registerInfo, handleSubmit: handleSubmitInfo } = useForm({
     defaultValues: { firstname: user?.firstname, lastname: user?.lastname }
@@ -56,6 +58,19 @@ const Profile = () => {
   useEffect(() => {
     fetchMyOrders();
   }, []);
+
+  const orderIdFromUrl = searchParams.get('orderId');
+
+  useEffect(() => {
+    // Nếu danh sách đơn đã tải xong VÀ có yêu cầu xem chi tiết từ URL (từ Chat)
+    if (orders.length > 0 && orderIdFromUrl) {
+      const foundOrder = orders.find(o => o._id === orderIdFromUrl);
+      if (foundOrder) {
+        setActiveTab('orders'); // Chuyển tab sang Lịch sử đơn hàng
+        setSelectedOrder(foundOrder); // Tự động bật chi tiết đơn hàng đó lên
+      }
+    }
+  }, [orders, orderIdFromUrl]);
 
   const handleCancelOrder = async (e, id) => {
     e.preventDefault(); 
@@ -333,9 +348,15 @@ const Profile = () => {
                     <div>
                       {/* Chi tiết đơn hàng */}
                       <div className="flex items-center justify-between mb-8 border-b border-gray-100 dark:border-gray-800 pb-4 print:hidden">
-                        <button onClick={() => setSelectedOrder(null)} className="flex items-center gap-2 text-gray-500 hover:text-blue-600 font-bold transition-colors">
-                          <i className="ri-arrow-left-line"></i> Quay lại
-                        </button>
+                        <button 
+  onClick={() => {
+    setSelectedOrder(null);
+    setSearchParams({}); // Xóa orderId khỏi URL để người dùng xem các đơn khác bình thường
+  }} 
+  className="flex items-center gap-2 text-gray-500 hover:text-blue-600 font-bold transition-colors"
+>
+  <i className="ri-arrow-left-line"></i> Quay lại
+</button>
                         <button onClick={handleExportInvoice} className="flex items-center gap-2 px-4 py-2 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 text-gray-800 dark:text-white font-bold rounded-xl transition-colors">
                           <i className="ri-printer-line"></i> Xuất hóa đơn
                         </button>
@@ -462,6 +483,13 @@ const Profile = () => {
                             Đã nhận được hàng
                           </button>
                         )}
+                        {/* Thêm nút Chat với Admin */}
+       <button 
+         onClick={() => openChat({ order: selectedOrder })}
+         className="flex items-center gap-2 bg-blue-100 text-blue-600 px-6 py-3 rounded-xl font-bold hover:bg-blue-200 transition-colors"
+       >
+         <i className="ri-customer-service-2-line"></i> Hỗ trợ tư vấn
+       </button>
                       </div>
                     </div>
                   ) : (

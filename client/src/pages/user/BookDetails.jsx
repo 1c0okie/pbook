@@ -8,12 +8,14 @@ import useAuthStore from '../../store/auth.store';
 import BookReviews from '../../components/BookReviews';
 import BookRow from '../../components/BookRow';
 import RelatedBooks from '../../components/RelatedBooks';
+import useChatStore from '../../store/chat.store'; // Import Hook
 const BookDetails = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { isAuthenticated, user } = useAuthStore();
   
   const [book, setBook] = useState(null);
+  const { openChat } = useChatStore();
   const [isLoading, setIsLoading] = useState(true);
   const [quantity, setQuantity] = useState(1);
   
@@ -144,7 +146,8 @@ const BookDetails = () => {
                       <i className="ri-star-fill"></i>
                     </div>
                     <span className="text-gray-900 dark:text-gray-100 font-black">{book.rating || '0.0'}</span>
-                    <span className="text-gray-500 font-medium">({book.numReviews} nhận xét)</span>
+                    <span className="text-gray-500 font-medium">({book.sold} đã bán | {book.numReviews} nhận xét)</span>
+                    
                   </div>
                 </div>
               </div>
@@ -215,8 +218,15 @@ const BookDetails = () => {
                     <i className="ri-shopping-cart-2-fill text-xl"></i>
                     Thêm vào giỏ hàng
                   </button>
+                  {/* Thêm nút Chat với Admin */}
+     
                 </div>
-              )}
+              )}  <button 
+         onClick={() => openChat({ book: book })}
+         className="flex items-center gap-2 bg-blue-100 text-blue-600 px-6 py-3 rounded-xl font-bold hover:bg-blue-200 transition-colors"
+       >
+         <i className="ri-customer-service-2-line"></i> Tư vấn sách này
+       </button>
             </section>
 
             {/* Review Section */}
@@ -246,6 +256,7 @@ const BookDetails = () => {
       />
     </div>
   </section>
+  
 
     </div>
   );
