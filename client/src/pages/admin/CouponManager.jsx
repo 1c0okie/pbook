@@ -70,7 +70,6 @@ const CouponManager = () => {
     }
   };
 
-  // HÀM MỚI: Xử lý bật/tắt hiển thị trang chủ
   const handleToggleShowHome = async (id) => {
     try {
       const data = await couponService.toggleShowOnHome(id);
@@ -116,7 +115,6 @@ const CouponManager = () => {
                   placeholder="VD: 15"
                   className="w-full px-4 py-3 rounded-2xl bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 focus:border-blue-500 outline-none text-gray-900 dark:text-white"
                 />
-                {/* Thêm dòng này để hiển thị dòng chữ báo lỗi màu đỏ */}
                 {errors.discount && <p className="text-red-500 text-xs mt-1 font-medium">{errors.discount.message}</p>}
               </div>
 
@@ -151,7 +149,6 @@ const CouponManager = () => {
                     <th className="p-5 font-semibold">Mức giảm</th>
                     <th className="p-5 font-semibold">Hạn sử dụng</th>
                     <th className="p-5 font-semibold text-center">Hoạt động</th>
-                    {/* CỘT MỚI */}
                     <th className="p-5 font-semibold text-center">Hiện Trang chủ</th>
                     <th className="p-5 font-semibold text-center">Hành động</th>
                   </tr>
@@ -163,6 +160,7 @@ const CouponManager = () => {
                     <tr><td colSpan="6" className="text-center p-8 text-gray-500">Không tìm thấy mã giảm giá nào.</td></tr>
                   ) : (
                     filteredCoupons.map((coupon) => {
+                      // KIỂM TRA MÃ ĐÃ HẾT HẠN HAY CHƯA
                       const isExpired = new Date(coupon.expiryDate) < new Date();
                       
                       return (
@@ -178,7 +176,7 @@ const CouponManager = () => {
                             {isExpired && <span className="block text-red-500 text-xs mt-1">Đã hết hạn</span>}
                           </td>
                           
-                          {/* Nút bật tắt kích hoạt (Cũ) */}
+                          {/* Nút bật tắt kích hoạt */}
                           <td className="p-5 text-center">
                             <button 
                               onClick={() => handleToggleStatus(coupon._id)}
@@ -188,11 +186,13 @@ const CouponManager = () => {
                             </button>
                           </td>
                           
-                          {/* NÚT BẬT TẮT HIỂN THỊ TRANG CHỦ (MỚI) */}
+                          {/* NÚT BẬT TẮT HIỂN THỊ TRANG CHỦ (ĐÃ SỬA) */}
                           <td className="p-5 text-center">
                             <button 
+                              disabled={isExpired}
+                              title={isExpired ? "Mã đã hết hạn, không thể hiển thị" : "Bật/tắt hiển thị trang chủ"}
                               onClick={() => handleToggleShowHome(coupon._id)}
-                              className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${coupon.isShowOnHome ? 'bg-blue-600' : 'bg-gray-300 dark:bg-gray-600'}`}
+                              className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${isExpired ? 'opacity-40 cursor-not-allowed' : 'cursor-pointer'} ${coupon.isShowOnHome ? 'bg-blue-600' : 'bg-gray-300 dark:bg-gray-600'}`}
                             >
                               <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${coupon.isShowOnHome ? 'translate-x-6' : 'translate-x-1'}`} />
                             </button>
