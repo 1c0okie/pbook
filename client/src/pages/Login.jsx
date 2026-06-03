@@ -12,7 +12,7 @@ import api from '../utils/api';
 // Schema validation
 const schema = yup.object().shape({
   email: yup.string()
-    .trim() // Tự động xóa khoảng trắng ở 2 đầu nếu người dùng lỡ copy dư
+    .trim() 
     .email('Email không hợp lệ')
     .required('Vui lòng nhập email'),
     
@@ -25,23 +25,27 @@ const Login = () => {
   const login = useAuthStore((state) => state.login);
   const isLoading = useAuthStore((state) => state.isLoading);
   
-  // Đã mở comment setAuth để lưu thông tin user vào store sau khi Google Login thành công
   const setAuth = useAuthStore((state) => state.setAuth);
   const navigate = useNavigate();
 
   // === CẤU HÌNH CUSTOM GOOGLE LOGIN ===
-const loginWithGoogle = useGoogleLogin({
+  const loginWithGoogle = useGoogleLogin({
     onSuccess: async (tokenResponse) => {
       try {
         const res = await api.post('/users/google', { 
           token: tokenResponse.access_token 
         });
 
-        // QUAN TRỌNG: Lưu dữ liệu vào Zustand và LocalStorage
         if (res.data) {
-          setAuth(res.data); // Gọi hàm này để cả hệ thống nhận diện User
+          setAuth(res.data); 
           toast.success(`Chào mừng ${res.data.firstname} trở lại!`);
-          navigate('/');
+          
+          // SỬA LOGIC: Kiểm tra quyền để chuyển hướng
+          if (res.data.isAdmin) {
+            navigate('/admin/dashboard');
+          } else {
+            navigate('/');
+          }
         }
       } catch (error) {
         toast.error('Lỗi đăng nhập Google');
@@ -56,8 +60,14 @@ const loginWithGoogle = useGoogleLogin({
 
   const onSubmit = async (data) => {
     try {
-      await login(data.email, data.password);
-      navigate('/'); 
+      // SỬA LOGIC: Bắt lấy user trả về từ Store để kiểm tra quyền
+      const user = await login(data.email, data.password);
+      
+      if (user.isAdmin) {
+        navigate('/admin/dashboard');
+      } else {
+        navigate('/'); 
+      }
     } catch (error) {
       // Lỗi đã được xử lý bằng Toast ở auth.store
     }
@@ -66,7 +76,7 @@ const loginWithGoogle = useGoogleLogin({
   return (
     <div className="relative min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-950 px-4 sm:px-6 lg:px-8 transition-colors duration-500 overflow-hidden">
       
-      {/* Background Blobs (Giữ nguyên) */}
+      {/* Background Blobs */}
       <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none z-0">
         <div className="absolute top-[-10%] left-[-10%] w-96 h-96 bg-blue-400/30 dark:bg-blue-600/20 rounded-full mix-blend-multiply filter blur-[100px] opacity-70 animate-blob"></div>
         <div className="absolute top-[20%] right-[-10%] w-96 h-96 bg-indigo-400/30 dark:bg-indigo-600/20 rounded-full mix-blend-multiply filter blur-[100px] opacity-70 animate-blob animation-delay-2000"></div>

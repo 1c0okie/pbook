@@ -6,6 +6,7 @@ import Login from './pages/Login';
 import Register from './pages/Register';
 import ProtectedRoute from './components/ProtectedRoute';
 import AdminRoute from './components/AdminRoute';
+import UserRoute from './components/UserRoute'; // IMPORT THÊM USER ROUTE Ở ĐÂY
 import useThemeStore from './store/theme.store';
 import AdminLayout from './layouts/admin/AdminLayout';
 import CategoryManager from './pages/admin/CategoryManager';
@@ -42,26 +43,29 @@ import HomePageLayoutManager from './pages/admin/HomePageLayoutManager';
 import { useScrollReveal } from './hooks/useScrollReveal';
 import ChatWidget from './components/ChatWidget';
 import AdminChat from './pages/admin/AdminChat';
+
 const GlobalAnimations = () => {
   useScrollReveal();
-  return null; // Component này chạy ngầm, không render gì ra màn hình
+  return null; 
 };
+
 function App() {
   const initTheme = useThemeStore((state) => state.initTheme);
   const { settings, fetchSettings } = useSettingStore();
   
   useEffect(() => {
-    fetchSettings(); // Lấy settings và tự đổi document.title
+    fetchSettings(); 
   }, []);
+
   useEffect(() => {
-    initTheme(); // Chạy 1 lần khi load app để set class 'dark' nếu có
+    initTheme(); 
   }, [initTheme]);
-  // THÊM ĐOẠN NÀY ĐỂ KÍCH HOẠT MÀU SẮC THEO MÙA
+
   useEffect(() => {
     if (settings?.currentTheme) {
-      document.body.className = settings.currentTheme; // Gắn class (vd: theme-spring) vào body
+      document.body.className = settings.currentTheme; 
     } else {
-      document.body.className = 'theme-winter'; // Mặc định là màu gốc (Mùa đông)
+      document.body.className = 'theme-winter'; 
     }
   }, [settings?.currentTheme]);
 
@@ -70,39 +74,37 @@ function App() {
       <ScrollToTop />
       <GlobalAnimations />
       <ChatWidget />
-      {/* Cấu hình Toaster toàn cục */}
+      
       <Toaster
-        position="bottom-right" // Chuyển xuống góc dưới bên phải để tránh che Form
+        position="bottom-right" 
         reverseOrder={false}
         gutter={8}
         containerClassName=""
         containerStyle={{
           top: 20,
           left: 20,
-          bottom: 40, // Đẩy lên một chút để không đè lên footer/chat widget
+          bottom: 40, 
           right: 20,
         }}
         toastOptions={{
-          // Cấu hình chung cho mọi Toast
           duration: 4000,
           style: {
             background: '#fff',
             color: '#363636',
-            borderRadius: '16px', // Bo góc lớn đồng bộ với giao diện web
+            borderRadius: '16px', 
             padding: '12px 24px',
             boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)',
           },
-          // Cấu hình riêng theo loại
           success: {
             iconTheme: {
-              primary: '#10b981', // Màu xanh Emerald/Summer
+              primary: '#10b981', 
               secondary: 'white',
             },
           },
           error: {
             duration: 3000,
             iconTheme: {
-              primary: '#ef4444', // Màu đỏ sẫm
+              primary: '#ef4444', 
               secondary: 'white',
             },
           },
@@ -110,40 +112,49 @@ function App() {
       />
       
       <Routes>
-       {/* ROUTES KHÔNG CẦN LAYOUT (AUTH) */}
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
-        <Route path="/forgot-password" element={<ForgotPassword />} />
-        <Route path="/reset-password/:token" element={<ResetPassword />} />
-        {/* ROUTES DÀNH CHO USER (BỌC TRONG USER LAYOUT) */}
-        <Route element={<UserLayout />}>
-          <Route path="/" element={<HomePage />} />
-          <Route path="/store" element={<StorePage />} />
-          <Route path="/book/:id" element={<BookDetails />} />
-          <Route path="/author/:id" element={<AuthorPage />} />
-          <Route path="/about" element={<AboutPage />} />
-          <Route path="/contact" element={<ContactPage />} />
-          <Route path="/blog" element={<BlogPage />} />
-          <Route path="/blog/:id" element={<PostDetail />} />
-          <Route path="/faq" element={<FAQPage />} />
-          <Route path="/shipping" element={<ShippingPage />} />
+        
+        {/* ======================================================== */}
+        {/* 🟢 KHU VỰC DÀNH CHO KHÁCH & USER (ADMIN SẼ BỊ ĐÁ RA NGOÀI) */}
+        {/* ======================================================== */}
+        <Route element={<UserRoute />}>
           
-          {/* Các route user cần đăng nhập */}
-          <Route element={<ProtectedRoute />}>
-            <Route path="/profile" element={<Profile />} />
-            <Route path="/checkout" element={<Checkout />} />
-            <Route path="/wishlist" element={<Wishlist />} />
+          {/* ROUTES KHÔNG CẦN LAYOUT (AUTH) */}
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/reset-password/:token" element={<ResetPassword />} />
+          
+          {/* ROUTES DÀNH CHO USER (BỌC TRONG USER LAYOUT) */}
+          <Route element={<UserLayout />}>
+            <Route path="/" element={<HomePage />} />
+            <Route path="/store" element={<StorePage />} />
+            <Route path="/book/:id" element={<BookDetails />} />
+            <Route path="/author/:id" element={<AuthorPage />} />
+            <Route path="/about" element={<AboutPage />} />
+            <Route path="/contact" element={<ContactPage />} />
+            <Route path="/blog" element={<BlogPage />} />
+            <Route path="/blog/:id" element={<PostDetail />} />
+            <Route path="/faq" element={<FAQPage />} />
+            <Route path="/shipping" element={<ShippingPage />} />
+            
+            {/* Các route user cần đăng nhập */}
+            <Route element={<ProtectedRoute />}>
+              <Route path="/profile" element={<Profile />} />
+              <Route path="/checkout" element={<Checkout />} />
+              <Route path="/wishlist" element={<Wishlist />} />
+            </Route>
           </Route>
+
         </Route>
 
-        {/* CÁC ROUTE ADMIN - ĐƯỢC BỌC TRONG ADMIN LAYOUT */}
+
+        {/* ======================================================== */}
+        {/* 🔴 KHU VỰC DÀNH RIÊNG CHO ADMIN (USER SẼ BỊ ĐÁ RA NGOÀI) */}
+        {/* ======================================================== */}
         <Route element={<AdminRoute />}>
           <Route element={<AdminLayout />}>
-            {/* Index route của AdminLayout */}
             <Route path="/admin/dashboard" element={<AdminDashboard />} />
             <Route path="/admin/home" element={<HomePageLayoutManager />} />
-            
-            {/* Các trang sẽ làm ở bước tiếp theo */}
             <Route path="/admin/categories" element={<CategoryManager />} />
             <Route path="/admin/authors" element={<AuthorManager />} />
             <Route path="/admin/books" element={<BookManager />} />
@@ -156,9 +167,9 @@ function App() {
             <Route path="/admin/faq" element={<FAQManager />} />
             <Route path="/admin/audit-logs" element={<AuditLogManager />} />
             <Route path="/admin/chat" element={<AdminChat />} />
-            
           </Route>
         </Route>  
+
       </Routes>
     </Router>
   );
